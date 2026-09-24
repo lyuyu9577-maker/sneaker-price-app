@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import time
+import unicodedata
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -66,8 +67,24 @@ class Recommendation:
 
 
 def normalize_query(query: str) -> str:
-    return query.strip()
+    return unicodedata.normalize("NFKC", query).strip()
 
+
+def search_tokens(value: str) -> list[str]:
+    value = normalize_query(value).lower()
+    for source, target in {
+        "喬丹": " jordan ", "乔丹": " jordan ", "科比": " kobe ",
+        "耐吉": " nike ", "愛迪達": " adidas ", "阿迪達斯": " adidas ",
+        "紐巴倫": " new balance ", "紐百倫": " new balance ",
+    }.items():
+        value = value.replace(source, target)
+    value = re.sub(r"\ball[\s-]*stars?\b", "allstar", value)
+    value = re.sub(r"\blow[\s-]*top\b", "lowtop", value)
+    value = re.sub(r"\bhigh[\s-]*top\b", "hightop", value)
+    value = re.sub(r"\baj(?=\s*\d)", "jordan ", value)
+    value = re.sub(r"(?<=[a-z])(?=\d)|(?<=\d)(?=[a-z])", " ", value)
+    # Keep model numbers as complete tokens: 1 must not match 11 or 100.
+    return re.findall(r"[a-z]+|\d+(?:\.\d+)?|[\u4e00-\u9fff]+", value)
 
 def normalize_match_text(value: str) -> str:
     return re.sub(r"[^0-9a-zA-Z\u4e00-\u9fff]+", "", value).lower()
@@ -173,58 +190,61 @@ def build_query_term_groups(query: str) -> list[list[list[str]]]:
 
 
 def query_matches_product(query: str, product_name: str) -> bool:
-    normalized_name = normalize_match_text(product_name)
-    product_tokens = tokenize_match_text(product_name)
-    term_groups = build_query_term_groups(query)
-
-    if not term_groups:
-        return True
-
-    for alternatives in term_groups:
-        if any(
-            normalize_match_text("".join(parts)) in normalized_name
-            or product_contains_parts(product_tokens, parts)
-            for parts in alternatives
-        ):
-            continue
+    if not is_sneaker_product(product_name):
         return False
-
-    return True
-
+    ignored = {"鞋", "球鞋", "運動鞋", "休閒鞋", "籃球鞋", "男鞋", "女鞋", "童鞋",
+               "sneaker", "sneakers", "shoe", "shoes", "款", "代"}
+    query_parts = [part for part in search_tokens(query) if part not in ignored]
+    product_parts = search_tokens(product_name)
+    romans = {parts[0]: variants[-1][0]
+              for number in range(1, 21)
+              for parts in [[str(number)]]
+              for variants in [expand_number_aliases(parts)]}
+    roman_numbers = {roman: number for number, roman in romans.items()}
+    def canonical(token: str) -> str:
+        return roman_numbers.get(token, token)
+    def same(query_token: str, product_token: str) -> bool:
+        if re.fullmatch(r"[\u4e00-\u9fff]+", query_token):
+            return query_token in product_token
+        return canonical(query_token) == canonical(product_token)
+    index = 0
+    while index < len(query_parts):
+        part = query_parts[index]
+        # Tie a requested generation to the preceding model name. A size,
+        # price or SKU elsewhere in the title cannot satisfy this constraint.
+        if (index + 1 < len(query_parts)
+                and re.fullmatch(r"[a-z]+", part)
+                and (query_parts[index + 1].isdigit() or query_parts[index + 1] in roman_numbers)):
+            number = query_parts[index + 1]
+            if not any(same(part, left) and same(number, right)
+                       for left, right in zip(product_parts, product_parts[1:])):
+                return False
+            index += 2
+        else:
+            if not any(same(part, token) for token in product_parts):
+                return False
+            index += 1
+    return bool(query_parts) or bool(normalize_query(query))
 
 def detect_shoe_category(product_name: str) -> str:
-    lowered = product_name.lower()
-
-    kids_markers = [
-        "童鞋",
-        "兒童",
-        "小童",
-        "中童",
-        "大童",
-        "kids",
-        "kid",
-        "youth",
-        "gs",
-        "ps",
-        "td",
-    ]
-    women_markers = ["女鞋", "女款", "女子", "女性", "women", "womens", "women's", "wmns"]
-    men_markers = ["男鞋", "男款", "男子", "男性", "men", "mens", "men's"]
-
-    has_kids = any(marker in lowered for marker in kids_markers)
-    has_women = any(marker in lowered for marker in women_markers)
-    has_men = any(marker in lowered for marker in men_markers)
-
+    lowered = normalize_query(product_name).lower()
+    english = set(re.findall(r"[a-z]+(?:'[a-z]+)?", lowered))
+    has_kids = any(word in lowered for word in ["童鞋", "兒童", "小童", "中童", "大童"]) or bool(
+        english & {"kids", "kid", "youth", "gs", "ps", "td"})
+    has_women = any(word in lowered for word in ["女鞋", "女款", "女子", "女性"]) or bool(
+        english & {"women", "womens", "women's", "wmns"})
+    has_men = any(word in lowered for word in ["男鞋", "男款", "男子", "男性"]) or bool(
+        english & {"men", "mens", "men's"})
+    unisex = "男女" in lowered or "unisex" in english
     if has_kids:
         return "童鞋"
-    if has_women and not has_men:
-        return "女鞋"
-    if has_men and not has_women:
-        return "男鞋"
-    if has_men and has_women:
+    if unisex or (has_women and has_men):
         return "男女通用"
+    if has_women:
+        return "女鞋"
+    if has_men:
+        return "男鞋"
     return "未標示"
-
 
 def category_matches_product(selected_category: str, product_name: str) -> bool:
     if selected_category == "全部":
@@ -310,23 +330,29 @@ def parse_int_price(value: str | int | float | None) -> int | None:
 
 
 def is_sneaker_product(name: str) -> bool:
-    include_keywords = [
-        "鞋",
-        "球鞋",
-        "運動鞋",
-        "休閒鞋",
-        "籃球鞋",
-        "男鞋",
-        "女鞋",
-        "童鞋",
-        "sneaker",
-    ]
-    exclude_keywords = ["襪", "背包", "包包", "衣", "褲", "帽", "吊飾", "鑰匙圈"]
-    lower_name = name.lower()
-    return any(keyword.lower() in lower_name for keyword in include_keywords) and not any(
-        keyword.lower() in lower_name for keyword in exclude_keywords
-    )
-
+    name = normalize_query(name).lower()
+    excluded = ["襪", "背包", "包包", "球衣", "上衣", "外套", "褲", "帽", "吊飾", "鑰匙圈",
+                "鞋帶", "鞋墊", "鞋盒", "鞋櫃", "鞋架", "鞋袋", "鞋撐", "鞋拔", "鞋扣", "鞋刷",
+                "鞋用", "清潔", "清洗", "洗鞋", "除臭", "保養", "修補", "防水噴", "模型", "公仔",
+                "拖鞋", "涼鞋", "皮鞋", "高跟鞋", "樂福鞋", "瑪莉珍", "豆豆鞋", "雨鞋", "靴",
+                "多款", "任選", "隨機", "混款", "多型號"]
+    if any(word in name for word in excluded):
+        return False
+    if re.search(r"\b(socks?|laces?|insoles?|shoelaces?|cleaner|slippers?|sandals?|boots?|jerseys?|hoodies?|backpacks?|keychains?|shoehorns?|shirts?|t-shirts?|caps?|toys?)\b", name):
+        return False
+    if re.search(r"\bshoe\s+(box|rack|bag|tree|care|charm)s?\b", name):
+        return False
+    tokens = search_tokens(name)
+    families = set(tokens) & {"kobe", "dunk", "samba", "sambae", "lebron", "ja", "kyrie", "kd", "curry", "tatum"}
+    if any(left == "jordan" and (right.isdigit() or right in {"i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x", "xi", "xii", "xiii", "xiv"})
+           for left, right in zip(tokens, tokens[1:])):
+        families.add("jordan")
+    if any(left == "air" and right == "force" for left, right in zip(tokens, tokens[1:])):
+        families.add("airforce")
+    # Reject titles stuffing multiple different shoe families into one listing.
+    if len(families) > 1:
+        return False
+    return "鞋" in name or bool(re.search(r"\b(sneakers?|shoes?|trainers?)\b", name))
 
 def parse_pchome_product_page(html: str) -> dict[str, int | float | str | None]:
     final_price = None
@@ -432,9 +458,9 @@ def fetch_pchome_products(query: str, max_pages: int = 4, detail_limit: int = 24
             product_id = item.get("Id")
             name = item.get("name")
             search_price = parse_int_price(item.get("price"))
-            if not product_id or not name or search_price is None:
+            if not product_id or not name or search_price is None or search_price <= 0:
                 continue
-            if not is_sneaker_product(name):
+            if not query_matches_product(query, name):
                 continue
 
             product_url = f"https://24h.pchome.com.tw/prod/{product_id}"
@@ -458,6 +484,8 @@ def fetch_pchome_products(query: str, max_pages: int = 4, detail_limit: int = 24
                 }
             )
 
+    if not rows:
+        return pd.DataFrame(columns=PRODUCT_CATALOG_COLUMNS)
     products_df = pd.DataFrame(rows).drop_duplicates(subset=["商品連結"])
     if products_df.empty:
         return products_df
@@ -522,9 +550,9 @@ def fetch_momo_products(query: str, limit: int = 60) -> pd.DataFrame:
         price = parse_int_price(offers.get("price"))
         name = item.get("name")
         product_url = item.get("url")
-        if not name or not product_url or price is None:
+        if not name or not product_url or price is None or price <= 0:
             continue
-        if not is_sneaker_product(name):
+        if not query_matches_product(query, name):
             continue
 
         rows.append(
@@ -544,6 +572,8 @@ def fetch_momo_products(query: str, limit: int = 60) -> pd.DataFrame:
             }
         )
 
+    if not rows:
+        return pd.DataFrame(columns=PRODUCT_CATALOG_COLUMNS)
     products_df = pd.DataFrame(rows).drop_duplicates(subset=["商品連結"])
     if products_df.empty:
         return products_df
@@ -612,50 +642,39 @@ def build_products(
 ) -> tuple[pd.DataFrame, list[str]]:
     warnings = []
     product_frames = []
-
-    if use_live_pchome:
+    for enabled, platform, fetch in [
+        (use_live_pchome, "PChome", fetch_pchome_products),
+        (use_live_momo, "momo", fetch_momo_products),
+    ]:
+        if not enabled:
+            continue
         try:
-            pchome_products = fetch_pchome_products(query)
-            if not pchome_products.empty:
-                product_frames.append(pchome_products)
+            found = fetch(query)
+            if not found.empty:
+                product_frames.append(found)
             else:
-                warnings.append("PChome 目前沒有回傳符合的商品，已改用模擬資料。")
-        except Exception as exc:
-            warnings.append(f"PChome 即時資料讀取失敗，已改用模擬資料：{exc}")
-
-    if use_live_momo:
-        try:
-            momo_products = fetch_momo_products(query)
-            if not momo_products.empty:
-                product_frames.append(momo_products)
-            else:
-                warnings.append("momo 目前沒有回傳符合的商品，已改用模擬資料。")
-        except Exception as exc:
-            warnings.append(f"momo 即時資料讀取失敗，已改用模擬資料：{exc}")
-
+                warnings.append(f"{platform} 未回傳商品；若有已保存的符合商品，會標示資料來源。")
+        except Exception:
+            warnings.append(f"{platform} 即時資料暫時無法取得；已保存價格不代表最新售價。")
     saved_products = search_product_catalog(query)
     if not saved_products.empty:
         product_frames.append(saved_products)
-
-    mock_platforms = []
-    if not use_live_momo or not any(
-        frame["平台"].eq("momo購物網").any() for frame in product_frames
-    ):
-        mock_platforms.append("momo購物網")
-    if not use_live_pchome or not product_frames:
-        mock_platforms.append("PChome")
-
-    mock_products = build_mock_products(query, mock_platforms)
-    if not mock_products.empty:
-        product_frames.append(mock_products)
-
+    if not product_frames:
+        return pd.DataFrame(columns=PRODUCT_CATALOG_COLUMNS), warnings
     products = pd.concat(product_frames, ignore_index=True)
+    products["價格"] = pd.to_numeric(products["價格"], errors="coerce")
+    products = products[
+        products["價格"].gt(0)
+        & ~products["資料來源"].astype(str).str.contains("模擬", na=False)
+        & products["商品名稱"].map(lambda name: query_matches_product(query, str(name)))
+    ].copy()
+    if products.empty:
+        return pd.DataFrame(columns=PRODUCT_CATALOG_COLUMNS), warnings
     products["鞋款類別"] = products["商品名稱"].map(detect_shoe_category)
     products = products.drop_duplicates(subset=["平台", "商品連結"], keep="first")
     products["推薦分數"] = calculate_scores(products)
     record_product_catalog(products)
     return products.sort_values("推薦分數", ascending=False).reset_index(drop=True), warnings
-
 
 def calculate_scores(products: pd.DataFrame) -> pd.Series:
     price = products["價格"].astype(float)
@@ -665,7 +684,7 @@ def calculate_scores(products: pd.DataFrame) -> pd.Series:
 
     price_score = 1 - (price - price.min()) / max(price.max() - price.min(), 1)
     rating_score = (rating - 4.0) / 1.0
-    review_score = np.log1p(reviews) / np.log1p(reviews.max())
+    review_score = np.log1p(reviews.clip(lower=0)) / max(float(np.log1p(reviews.max())), 1.0)
 
     score = (
         price_score.clip(0, 1) * 0.42
@@ -880,8 +899,8 @@ def main() -> None:
             <h1>智慧價格預測系統</h1>
             <p>
                 以球鞋為範例，整合跨平台比價、歷史價格分析與推薦分數。
-                目前版本使用假資料建立完整介面流程，後續可替換為 Selenium、
-                BeautifulSoup、SQLite 與 ARIMA 模型。
+                搜尋會嚴格比對鞋款與型號，排除配件、多款混售與模擬商品。
+                已保存價格不代表最新售價，購買前請確認商品頁。
             </p>
         </section>
         """,
@@ -931,7 +950,7 @@ def main() -> None:
     if catalog_count:
         st.caption(f"已累積 {catalog_count} 筆實際球鞋商品資料，可供後續搜尋使用。")
     if products.empty:
-        st.warning("目前篩選條件沒有符合的商品，請調整平台或最高價格。")
+        st.warning("沒有符合鞋款名稱、型號與篩選條件的商品。請確認關鍵字，或調整鞋款類別與最高價格。")
         return
 
     full_history = record_price_history(query, shoe_category, products)
