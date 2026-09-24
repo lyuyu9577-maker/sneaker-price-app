@@ -1,0 +1,5 @@
+streamlit==1.64.0
+pandas==3.0.1
+numpy==2.3.5
+requests==2.34.2
+altair==6.3.0
