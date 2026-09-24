@@ -190,41 +190,79 @@ def build_query_term_groups(query: str) -> list[list[list[str]]]:
 
 
 def query_matches_product(query: str, product_name: str) -> bool:
+    """Match complete terms, contextual generations, cuts and exact style codes."""
     if not is_sneaker_product(product_name):
         return False
+    def prepare(value: str) -> str:
+        value = normalize_query(value).lower()
+        for pattern, replacement in [
+            (r"低筒|低幫|低帮|\blow[\s-]*top\b", " low "),
+            (r"中筒|中幫|中帮|\bmid[\s-]*top\b", " mid "),
+            (r"高筒|高幫|高帮|\bhigh[\s-]*top\b", " high "),
+        ]:
+            value = re.sub(pattern, replacement, value)
+        return value
+
+    query_text, product_text = prepare(query), prepare(product_name)
+    # Keep a complete style code together instead of matching its pieces elsewhere.
+    sku_pattern = r"(?<![a-z0-9])(?:[a-z]{1,4}\d{3,7}|\d{5,7})-\d{3}(?![a-z0-9])"
+    for code in re.findall(sku_pattern, query_text):
+        if not re.search(r"(?<![a-z0-9])" + re.escape(code) + r"(?![a-z0-9])", product_text):
+            return False
+        query_text = query_text.replace(code, " ")
+    product_text = re.sub(sku_pattern, " ", product_text)
+
     ignored = {"鞋", "球鞋", "運動鞋", "休閒鞋", "籃球鞋", "男鞋", "女鞋", "童鞋",
                "sneaker", "sneakers", "shoe", "shoes", "款", "代"}
-    query_parts = [part for part in search_tokens(query) if part not in ignored]
-    product_parts = search_tokens(product_name)
-    romans = {parts[0]: variants[-1][0]
-              for number in range(1, 21)
-              for parts in [[str(number)]]
-              for variants in [expand_number_aliases(parts)]}
-    roman_numbers = {roman: number for number, roman in romans.items()}
-    def canonical(token: str) -> str:
+    query_parts = [part for part in search_tokens(query_text) if part not in ignored]
+    product_parts = search_tokens(product_text)
+    roman_numbers = {expand_number_aliases([str(n)])[-1][0]: str(n) for n in range(1, 21)}
+    generation_models = {"jordan", "kobe", "lebron", "kd", "kyrie", "curry",
+                         "ja", "tatum", "giannis", "harden", "luka", "zion", "book",
+                         "dame", "wade", "sabrina", "ae"}
+    def generation(token: str) -> str:
         return roman_numbers.get(token, token)
-    def same(query_token: str, product_token: str) -> bool:
-        if re.fullmatch(r"[\u4e00-\u9fff]+", query_token):
-            return query_token in product_token
-        return canonical(query_token) == canonical(product_token)
+    def same(left: str, right: str) -> bool:
+        if re.fullmatch(r"[\u4e00-\u9fff]+", left):
+            return left in right
+        return left == right
+
     index = 0
     while index < len(query_parts):
         part = query_parts[index]
-        # Tie a requested generation to the preceding model name. A size,
-        # price or SKU elsewhere in the title cannot satisfy this constraint.
-        if (index + 1 < len(query_parts)
-                and re.fullmatch(r"[a-z]+", part)
-                and (query_parts[index + 1].isdigit() or query_parts[index + 1] in roman_numbers)):
-            number = query_parts[index + 1]
-            if not any(same(part, left) and same(number, right)
-                       for left, right in zip(product_parts, product_parts[1:])):
+        if (index + 1 < len(query_parts) and re.fullmatch(r"[a-z]+", part)
+                and (query_parts[index + 1].isdigit()
+                     or (part in generation_models and query_parts[index + 1] in roman_numbers))):
+            wanted = query_parts[index + 1]
+            def number_matches(token: str) -> bool:
+                return (generation(token) == generation(wanted)
+                        if part in generation_models else token == wanted)
+            positions = [i for i in range(len(product_parts) - 1)
+                         if product_parts[i] == part and number_matches(product_parts[i + 1])]
+            if not positions:
                 return False
+            if part in generation_models:
+                # Reject both "Kobe 6 / Kobe 8" and "Kobe 6/8" multi-model listings.
+                for i, token in enumerate(product_parts[:-1]):
+                    if token != part:
+                        continue
+                    following = product_parts[i + 1]
+                    if (following.isdigit() or following in roman_numbers) and not number_matches(following):
+                        return False
+                for i in positions:
+                    j = i + 2
+                    while j < len(product_parts) and (product_parts[j].isdigit() or product_parts[j] in roman_numbers):
+                        if not number_matches(product_parts[j]):
+                            return False
+                        j += 1
             index += 2
         else:
             if not any(same(part, token) for token in product_parts):
                 return False
             index += 1
-    return bool(query_parts) or bool(normalize_query(query))
+    # Punctuation-only input must not match the entire catalog.
+    return bool(search_tokens(query))
+
 
 def detect_shoe_category(product_name: str) -> str:
     lowered = normalize_query(product_name).lower()
@@ -910,7 +948,7 @@ def main() -> None:
     with st.sidebar:
         st.header("搜尋條件")
         query = normalize_query(
-            st.text_input("球鞋名稱", value="", placeholder="例如 Kobe、Jordan、Dunk")
+            st.text_input("球鞋名稱", value="", placeholder="例如 Kobe 6、Jordan 1 Low、完整貨號")
         )
         shoe_category = st.radio("鞋款類別", SHOE_CATEGORIES, horizontal=True)
         platforms = st.multiselect("平台", PLATFORMS, default=PLATFORMS)
