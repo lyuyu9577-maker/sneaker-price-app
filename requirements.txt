@@ -1,5 +1,6 @@
-streamlit==1.64.0
-pandas==3.0.1
-numpy==2.3.5
-requests==2.34.2
-altair==6.3.0
+streamlit>=1.35
+pandas>=2.0
+numpy>=1.24
+requests>=2.31
+statsmodels>=0.14,<0.16
+tzdata>=2024.1

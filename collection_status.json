@@ -1,0 +1,102 @@
+{
+  "finished_at": "2026-09-24T23:11:53+08:00",
+  "new_observations": 288,
+  "results": [
+    {
+      "query": "Jordan 1 Low",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 20,
+      "checked_at": "2026-09-24T23:11:51+08:00",
+      "message": ""
+    },
+    {
+      "query": "Dunk Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 33,
+      "checked_at": "2026-09-24T23:11:51+08:00",
+      "message": ""
+    },
+    {
+      "query": "Jordan 1 Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 32,
+      "checked_at": "2026-09-24T23:11:51+08:00",
+      "message": ""
+    },
+    {
+      "query": "Air Force 1",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 38,
+      "checked_at": "2026-09-24T23:11:51+08:00",
+      "message": ""
+    },
+    {
+      "query": "Adidas Samba",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 31,
+      "checked_at": "2026-09-24T23:11:52+08:00",
+      "message": ""
+    },
+    {
+      "query": "Dunk Low",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 22,
+      "checked_at": "2026-09-24T23:11:52+08:00",
+      "message": ""
+    },
+    {
+      "query": "Air Force 1",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 14,
+      "checked_at": "2026-09-24T23:11:52+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 530",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 18,
+      "checked_at": "2026-09-24T23:11:52+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 19,
+      "checked_at": "2026-09-24T23:11:52+08:00",
+      "message": ""
+    },
+    {
+      "query": "Adidas Samba",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 25,
+      "checked_at": "2026-09-24T23:11:53+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 530",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 14,
+      "checked_at": "2026-09-24T23:11:53+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 22,
+      "checked_at": "2026-09-24T23:11:53+08:00",
+      "message": ""
+    }
+  ]
+}
