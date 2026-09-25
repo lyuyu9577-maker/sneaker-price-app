@@ -245,16 +245,18 @@ def render_dashboard():
     st.set_page_config(page_title="真實球鞋價格追蹤與 ARIMA", page_icon="👟", layout="wide")
     st.title("球鞋價格追蹤與 7 天預測")
     st.caption("真實平台刊登價 → 30／60／90 天觀測 → ARIMA 模型預測")
-    def use_tracked_shoe():
-        st.session_state.pop("shoe_search_result", None)
-        st.session_state["shoe_search_text"] = ""
-
-    query = st.sidebar.selectbox("每日追蹤鞋款", TARGETS, on_change=use_tracked_shoe)
-    with st.sidebar.form("shoe_search"):
-        search_text = st.text_input("搜尋其他鞋款", placeholder="例如：Kobe 6、Jordan 4",
-                                    key="shoe_search_text")
-        submitted = st.form_submit_button("搜尋")
-    st.sidebar.caption("輸入鞋款後按搜尋或 Enter；切換下拉選單可回到每日追蹤鞋款。")
+    mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋"],
+                            horizontal=True, key="shoe_query_mode")
+    query = None
+    submitted = False
+    if mode == "下拉選單":
+        query = st.sidebar.selectbox("每日追蹤鞋款", TARGETS, key="tracked_shoe")
+    else:
+        with st.sidebar.form("shoe_search"):
+            search_text = st.text_input("搜尋其他鞋款", placeholder="例如：Kobe 6、Jordan 4",
+                                        key="shoe_search_text")
+            submitted = st.form_submit_button("搜尋")
+        st.sidebar.caption("輸入鞋款後按搜尋或 Enter；切換「下拉選單」可查看預設鞋款。")
     if submitted:
         keyword = " ".join(search_text.split())
         if not keyword:
@@ -278,7 +280,10 @@ def render_dashboard():
     st.sidebar.link_button("查看每日收集執行紀錄", "https://github.com/lyuyu9577-maker/sneaker-price-app/actions")
     frame = load_observations()
     status = json.loads(STATUS.read_text(encoding="utf-8")) if STATUS.exists() else {}
-    search = st.session_state.get("shoe_search_result")
+    search = st.session_state.get("shoe_search_result") if mode == "自由搜尋" else None
+    if mode == "自由搜尋" and not search:
+        st.info("請在側邊欄輸入鞋款名稱，按「搜尋」查看價格。")
+        return
     if search:
         query = search["query"]
         status = search
@@ -291,6 +296,7 @@ def render_dashboard():
         st.caption("自訂搜尋不會加入每日自動追蹤；本次結果保留於目前工作階段。")
     else:
         selected = frame[frame["query"].eq(query)].copy()
+        st.caption(f"目前追蹤鞋款：{query}")
     st.caption("最近收集：" + status.get("finished_at", "尚未執行"))
     st.info("每筆附採集時間、商品連結及來源摘要。只記錄成功取得的價格，不把舊價當今日價格；"
             "不補造歷史。未限定尺寸／顏色，刊登價不包含運費與個人折價券。")
