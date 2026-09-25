@@ -245,23 +245,66 @@ def render_dashboard():
     st.set_page_config(page_title="真實球鞋價格追蹤與 ARIMA", page_icon="👟", layout="wide")
     st.title("球鞋價格追蹤與 7 天預測")
     st.caption("真實平台刊登價 → 30／60／90 天觀測 → ARIMA 模型預測")
-    query = st.sidebar.selectbox("每日追蹤鞋款", TARGETS)
+    def use_tracked_shoe():
+        st.session_state.pop("shoe_search_result", None)
+        st.session_state["shoe_search_text"] = ""
+
+    query = st.sidebar.selectbox("每日追蹤鞋款", TARGETS, on_change=use_tracked_shoe)
+    with st.sidebar.form("shoe_search"):
+        search_text = st.text_input("搜尋其他鞋款", placeholder="例如：Kobe 6、Jordan 4",
+                                    key="shoe_search_text")
+        submitted = st.form_submit_button("搜尋")
+    st.sidebar.caption("輸入鞋款後按搜尋或 Enter；切換下拉選單可回到每日追蹤鞋款。")
+    if submitted:
+        keyword = " ".join(search_text.split())
+        if not keyword:
+            st.sidebar.warning("請先輸入鞋款名稱。")
+        else:
+            rows, results = [], []
+            with st.spinner(f"正在搜尋 {keyword} 的平台價格…"):
+                for platform in PLATFORMS:
+                    try:
+                        found, result = collect_platform(keyword, platform)
+                        rows.extend(found)
+                        results.append(result)
+                    except (requests.RequestException, ValueError, KeyError, TypeError):
+                        results.append({"query": keyword, "platform": platform,
+                            "status": "error", "message": "即時搜尋暫時無法取得資料，請稍後再試。"})
+            st.session_state["shoe_search_result"] = {
+                "query": keyword, "rows": rows, "results": results,
+                "finished_at": now_tw().isoformat(timespec="seconds")}
     days = st.sidebar.radio("歷史期間（天）", [30, 60, 90], horizontal=True)
     st.sidebar.caption("代表性鞋款清單，並非即時銷量排行。每日台灣時間 09:17 收集；排程可能延遲。")
     st.sidebar.link_button("查看每日收集執行紀錄", "https://github.com/lyuyu9577-maker/sneaker-price-app/actions")
     frame = load_observations()
     status = json.loads(STATUS.read_text(encoding="utf-8")) if STATUS.exists() else {}
+    search = st.session_state.get("shoe_search_result")
+    if search:
+        query = search["query"]
+        status = search
+        historical = frame.loc[frame["title"].map(
+            lambda title: matches(query, str(title))).astype(bool)].copy()
+        selected = pd.concat([historical, pd.DataFrame(search["rows"], columns=COLUMNS)],
+                             ignore_index=True).drop_duplicates(
+                                 ["observed_at", "platform", "product_id"], keep="last")
+        st.caption(f"搜尋結果：{query}")
+        st.caption("自訂搜尋不會加入每日自動追蹤；本次結果保留於目前工作階段。")
+    else:
+        selected = frame[frame["query"].eq(query)].copy()
     st.caption("最近收集：" + status.get("finished_at", "尚未執行"))
     st.info("每筆附採集時間、商品連結及來源摘要。只記錄成功取得的價格，不把舊價當今日價格；"
             "不補造歷史。未限定尺寸／顏色，刊登價不包含運費與個人折價券。")
     for entry in status.get("results", []):
         if entry["query"] == query and entry["status"] != "ok":
             st.warning(f'{entry["platform"]}：{entry["message"]}')
-    selected = frame[frame["query"].eq(query)].copy()
     st.subheader("1 · 各平台目前價格")
     today = now_tw().date().isoformat()
     current = selected[selected["date"].eq(today)].sort_values("observed_at").drop_duplicates(
         ["platform", "product_id"], keep="last")
+    if search:
+        current = pd.DataFrame(search["rows"], columns=COLUMNS)
+        current = current[current["date"].eq(today)].drop_duplicates(
+            ["platform", "product_id"], keep="last")
     for platform, col in zip(PLATFORMS, st.columns(2)):
         subset = current[current["platform"].eq(platform)]
         with col:
