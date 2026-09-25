@@ -251,6 +251,9 @@ def render_dashboard():
     submitted = False
     if mode == "下拉選單":
         query = st.sidebar.selectbox("每日追蹤鞋款", TARGETS, key="tracked_shoe")
+        submitted = st.sidebar.button("搜尋", key="search_tracked_shoe")
+        search_text = query
+        st.sidebar.caption("選好鞋款後按「搜尋」，取得最新平台價格。")
     else:
         with st.sidebar.form("shoe_search"):
             search_text = st.text_input("搜尋其他鞋款", placeholder="例如：Kobe 6、Jordan 4",
@@ -273,14 +276,17 @@ def render_dashboard():
                         results.append({"query": keyword, "platform": platform,
                             "status": "error", "message": "即時搜尋暫時無法取得資料，請稍後再試。"})
             st.session_state["shoe_search_result"] = {
-                "query": keyword, "rows": rows, "results": results,
+                "mode": mode, "query": keyword, "rows": rows, "results": results,
                 "finished_at": now_tw().isoformat(timespec="seconds")}
     days = st.sidebar.radio("歷史期間（天）", [30, 60, 90], horizontal=True)
     st.sidebar.caption("代表性鞋款清單，並非即時銷量排行。每日台灣時間 09:17 收集；排程可能延遲。")
     st.sidebar.link_button("查看每日收集執行紀錄", "https://github.com/lyuyu9577-maker/sneaker-price-app/actions")
     frame = load_observations()
     status = json.loads(STATUS.read_text(encoding="utf-8")) if STATUS.exists() else {}
-    search = st.session_state.get("shoe_search_result") if mode == "自由搜尋" else None
+    search = st.session_state.get("shoe_search_result")
+    if search and (search.get("mode") != mode or
+                   (mode == "下拉選單" and search["query"] != query)):
+        search = None
     if mode == "自由搜尋" and not search:
         st.info("請在側邊欄輸入鞋款名稱，按「搜尋」查看價格。")
         return
@@ -293,7 +299,10 @@ def render_dashboard():
                              ignore_index=True).drop_duplicates(
                                  ["observed_at", "platform", "product_id"], keep="last")
         st.caption(f"搜尋結果：{query}")
-        st.caption("自訂搜尋不會加入每日自動追蹤；本次結果保留於目前工作階段。")
+        if mode == "自由搜尋":
+            st.caption("自訂搜尋不會加入每日自動追蹤；本次結果保留於目前工作階段。")
+        else:
+            st.caption("本次即時查詢結果保留於目前工作階段；歷史紀錄仍來自已保存的觀測。")
     else:
         selected = frame[frame["query"].eq(query)].copy()
         st.caption(f"目前追蹤鞋款：{query}")
