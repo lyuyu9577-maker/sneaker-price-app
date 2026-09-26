@@ -1,0 +1,49 @@
+name: Register tracked product
+on:
+  issues:
+    types: [opened, reopened]
+  workflow_dispatch:
+    inputs:
+      platform:
+        required: true
+        type: choice
+        options: [PChome, momo購物網]
+      product_id:
+        required: true
+        type: string
+      query:
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: daily-verified-prices
+  cancel-in-progress: false
+jobs:
+  register:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.issue.title, '[追蹤申請] ')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Check tracking safeguards
+        run: python -m unittest test_watchlist -v
+      - name: Validate exact product and save tracking request
+        run: python watchlist.py
+      - name: Persist tracking list and first observation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- tracked_products.json verified_prices.jsonl
+          if ! git diff --cached --quiet; then
+            git commit -m "Register verified product for daily tracking"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
