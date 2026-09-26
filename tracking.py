@@ -408,10 +408,8 @@ def render_dashboard():
                                  ["observed_at", "platform", "product_id"], keep="last")
         st.caption(f"搜尋結果：{query}")
         if mode == "自由搜尋":
-            st.caption("鞋款類別：" + search.get("shoe_category", "未指定") + "（含男女通用；依商品名稱標示篩選）")
             if search.get("shoe_size"):
                 st.info("尺寸需求：" + search["shoe_size"] + "。目前平台資料未驗證此尺寸的庫存與價格；以下仍為商品刊登價，請至商品頁確認。長期追蹤以商品編號為單位。")
-            st.caption("選擇商品後按「加入追蹤」，送出 GitHub 申請即可開始長期累積；單純搜尋不會自動加入。")
         else:
             st.caption("本次即時查詢結果保留於目前工作階段；歷史紀錄仍來自已保存的觀測。")
     elif mode == "長期追蹤":
@@ -421,7 +419,6 @@ def render_dashboard():
     else:
         selected = frame[frame["query"].eq(query)].copy()
         st.caption(f"目前追蹤鞋款：{query}")
-    st.caption("最近收集：" + status.get("finished_at", "尚未執行"))
     for entry in status.get("results", []):
         if entry["query"] == query and entry["status"] != "ok":
             st.warning(f'{entry["platform"]}：{entry["message"]}')
