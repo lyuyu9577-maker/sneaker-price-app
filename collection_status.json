@@ -1,21 +1,13 @@
 {
-  "finished_at": "2026-09-25T23:37:02+08:00",
+  "finished_at": "2026-09-26T09:26:02+08:00",
   "new_observations": 291,
   "results": [
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 19,
-      "checked_at": "2026-09-25T23:36:59+08:00",
-      "message": ""
-    },
-    {
-      "query": "Jordan 1 Low",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 32,
-      "checked_at": "2026-09-25T23:36:59+08:00",
+      "count": 20,
+      "checked_at": "2026-09-26T09:25:56+08:00",
       "message": ""
     },
     {
@@ -23,7 +15,15 @@
       "platform": "PChome",
       "status": "ok",
       "count": 33,
-      "checked_at": "2026-09-25T23:36:59+08:00",
+      "checked_at": "2026-09-26T09:25:57+08:00",
+      "message": ""
+    },
+    {
+      "query": "Jordan 1 Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 32,
+      "checked_at": "2026-09-26T09:25:57+08:00",
       "message": ""
     },
     {
@@ -31,7 +31,7 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 21,
-      "checked_at": "2026-09-25T23:37:00+08:00",
+      "checked_at": "2026-09-26T09:25:57+08:00",
       "message": ""
     },
     {
@@ -39,7 +39,7 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 15,
-      "checked_at": "2026-09-25T23:37:00+08:00",
+      "checked_at": "2026-09-26T09:25:58+08:00",
       "message": ""
     },
     {
@@ -47,7 +47,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 38,
-      "checked_at": "2026-09-25T23:37:00+08:00",
+      "checked_at": "2026-09-26T09:25:59+08:00",
       "message": ""
     },
     {
@@ -55,15 +55,7 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 24,
-      "checked_at": "2026-09-25T23:37:01+08:00",
-      "message": ""
-    },
-    {
-      "query": "New Balance 530",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 24,
-      "checked_at": "2026-09-25T23:37:01+08:00",
+      "checked_at": "2026-09-26T09:25:59+08:00",
       "message": ""
     },
     {
@@ -71,15 +63,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 31,
-      "checked_at": "2026-09-25T23:37:01+08:00",
-      "message": ""
-    },
-    {
-      "query": "New Balance 9060",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 19,
-      "checked_at": "2026-09-25T23:37:02+08:00",
+      "checked_at": "2026-09-26T09:25:59+08:00",
       "message": ""
     },
     {
@@ -87,7 +71,15 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 15,
-      "checked_at": "2026-09-25T23:37:02+08:00",
+      "checked_at": "2026-09-26T09:26:00+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 530",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 24,
+      "checked_at": "2026-09-26T09:26:00+08:00",
       "message": ""
     },
     {
@@ -95,7 +87,15 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 20,
-      "checked_at": "2026-09-25T23:37:02+08:00",
+      "checked_at": "2026-09-26T09:26:01+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 18,
+      "checked_at": "2026-09-26T09:26:02+08:00",
       "message": ""
     }
   ]
