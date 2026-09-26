@@ -2,7 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 import watchlist as w
 
 
@@ -51,6 +51,18 @@ class WatchlistTests(unittest.TestCase):
         for changes in ({'platform':'unknown'}, {'product_id':'https://other.example'}, {'query':''}, {'query':'x'*101}):
             with self.assertRaises(ValueError):
                 w.validate_request(dict(self.target, **changes))
+
+    def test_single_page_exact_result_does_not_request_invalid_second_page(self):
+        import tracking
+        response = Mock(url='https://ecshweb.pchome.com.tw/search/v3.3/all/results', content=b'fixture')
+        response.json.return_value = {'totalPage':1, 'prods':[
+            {'Id':self.target['product_id'], 'name':'Jordan 1 Low', 'price':2000}]}
+        with patch('tracking.requests.Session') as session:
+            session.return_value.get.return_value = response
+            rows, _ = tracking.collect_platform(self.target['product_id'], 'PChome',
+                                                 exact_product_id=self.target['product_id'])
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(session.return_value.get.call_count, 1)
 
 
 if __name__ == '__main__':

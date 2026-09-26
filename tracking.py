@@ -85,7 +85,8 @@ def collect_platform(query, platform, exact_product_id=None):
                         continue
                     rows.append(observation(query, platform, pid, name,
                         f"https://24h.pchome.com.tw/prod/{pid}", price, response, item))
-                if not payload["prods"]:
+                if (not payload["prods"] or (exact_product_id and rows) or
+                        (isinstance(payload.get("totalPage"), int) and page >= payload["totalPage"])):
                     break
         else:
             response = session.get("https://www.momoshop.com.tw/search/" + quote_plus(query),
@@ -367,6 +368,21 @@ def render_dashboard():
         st.dataframe(table.rename(columns={"platform":"平台","title":"商品","price":"刊登價",
             "observed_at":"採集時間（UTC+8）","url":"商品連結"}), hide_index=True,
             column_config={"商品連結":st.column_config.LinkColumn("商品連結")})
+    if not current.empty:
+        st.markdown("**將搜尋商品加入長期追蹤**")
+        candidates = current.sort_values(["platform", "price"]).to_dict("records")
+        choices = {(r["platform"] + ":" + r["product_id"]): r for r in candidates}
+        selected_key = st.selectbox("選擇要每日收集的商品", list(choices),
+            format_func=lambda k: choices[k]["platform"] + " · " + choices[k]["title"] + " [" + choices[k]["product_id"] + "]")
+        candidate = choices[selected_key]
+        if any(w["platform"] == candidate["platform"] and w["product_id"] == candidate["product_id"] for w in watched):
+            st.success("此商品已加入每日追蹤，可在側邊欄「長期追蹤」查看。")
+        elif len(watched) >= MAX_TRACKED:
+            st.info(f"全站追蹤名額已滿（{MAX_TRACKED} 件）。")
+        else:
+            st.link_button("加入追蹤", request_url(candidate["platform"], candidate["product_id"], query))
+            st.caption(f"需登入 GitHub 並送出預填申請；驗證成功後加入全站共用清單（{len(watched)}／{MAX_TRACKED} 件）。申請與清單公開，請勿填入個人資料。")
+            st.caption("送出後可從側邊欄「查看每日收集執行紀錄」確認結果；成功後重新整理，再選「長期追蹤」。")
     st.subheader(f"2 · 歷史 {days} 天價格")
     st.caption("選擇固定商品查看走勢；每一天取最後一次成功觀測，缺漏日留空，未以其他商品價格補上。")
     if selected.empty:
@@ -385,11 +401,6 @@ def render_dashboard():
             st.caption(f"固定商品編號：{pid}")
             if any(w["platform"] == platform and w["product_id"] == pid for w in watched):
                 st.success("已加入每日長期追蹤")
-            elif len(watched) >= MAX_TRACKED:
-                st.info(f"全站追蹤名額已滿（{MAX_TRACKED} 件）。")
-            elif not current[(current["platform"] == platform) & (current["product_id"] == pid)].empty:
-                st.link_button("加入追蹤", request_url(platform, pid, query))
-                st.caption(f"需登入 GitHub 並送出預填申請；驗證成功後加入全站共用清單（上限 {MAX_TRACKED} 件）。申請與清單公開，請勿填入個人資料。")
             series = daily_series(product)
             period = series.reindex(pd.date_range(now_tw().date()-timedelta(days=days-1), periods=days))
             history = pd.DataFrame({"日期":period.index, "實際刊登價":period.values})
