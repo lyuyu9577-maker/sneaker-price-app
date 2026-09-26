@@ -246,6 +246,69 @@ def forecast_arima(series, today=None):
                    + " 區間為模型估計，並非未來實際售價保證。")
 
 
+def recommend_products(current, history, limit=3):
+    """Rank today's evidenced listings by price; never use invented ratings."""
+    if current.empty:
+        return []
+    rows = current.copy()
+    rows["price"] = pd.to_numeric(rows["price"], errors="coerce")
+    rows = rows[rows["date"].eq(now_tw().date().isoformat()) &
+                rows["price"].gt(0) & np.isfinite(rows["price"]) &
+                rows["currency"].eq("TWD")].copy()
+    rows = rows[rows["source_item"].map(bool).astype(bool) & rows["response_sha256"].map(bool).astype(bool)]
+    rows = rows.sort_values("observed_at").drop_duplicates(["platform", "product_id"], keep="last")
+    rows = rows.sort_values(["price", "observed_at", "platform", "product_id"],
+                            ascending=[True, False, True, True]).head(limit)
+    picks = []
+    today = now_tw().date().isoformat()
+    cutoff = (now_tw().date() - timedelta(days=90)).isoformat()
+    for rank, row in enumerate(rows.to_dict("records"), 1):
+        parsed = urlparse(row["url"])
+        if parsed.scheme != "https" or parsed.hostname not in {
+            "24h.pchome.com.tw", "www.momoshop.com.tw", "momoshop.com.tw"}:
+            continue
+        old = history[history["platform"].eq(row["platform"]) &
+                      history["product_id"].eq(row["product_id"]) &
+                      history["date"].lt(today) & history["date"].ge(cutoff)].copy()
+        old["price"] = pd.to_numeric(old["price"], errors="coerce")
+        old = old[old["price"].gt(0) & np.isfinite(old["price"])]
+        old = old.sort_values("observed_at").drop_duplicates("date", keep="last")
+        row["rank"] = rank
+        row["reason"] = "目前查詢中最低的有效刊登價" if rank == 1 else f"目前查詢中價格第 {rank} 低的候選商品"
+        if len(old) >= 7:
+            average = old["price"].mean()
+            change = (row["price"] / average - 1) * 100
+            row["history_note"] = (f"比此商品過去 {len(old)} 個觀測日均價"
+                                   + (f"低 {abs(change):.1f}%" if change < 0 else f"高 {change:.1f}%")
+                                   if abs(change) >= 0.05 else f"與過去 {len(old)} 個觀測日均價相近")
+        else:
+            row["history_note"] = "歷史觀測不足 7 天，尚不能判定是否為低點"
+        picks.append(row)
+    return picks
+
+
+def render_purchase_recommendations(current, history):
+    import streamlit as st
+    from app import detect_shoe_category
+    st.subheader("推薦購買商品")
+    picks = recommend_products(current, history)
+    if not picks:
+        st.info("目前沒有今天可驗證的商品價格。請先搜尋或更新價格，再查看購買推薦。")
+        return
+    st.caption("依本次查詢的實際刊登價排序，首選為價格最低者；不同配色、尺寸及男女鞋請確認商品頁。")
+    for row, column in zip(picks, st.columns(len(picks))):
+        with column, st.container(border=True):
+            st.markdown("**首選推薦**" if row["rank"] == 1 else f'**推薦 {row["rank"]}**')
+            st.caption(row["platform"] + " · " + detect_shoe_category(row["title"]))
+            st.write(row["title"])
+            st.metric("實際刊登價", f'NT$ {row["price"]:,.0f}')
+            st.write(row["reason"])
+            st.caption(row["history_note"])
+            st.caption("採集時間：" + row["observed_at"].replace("T", " "))
+            st.link_button("查看商品／購買", row["url"], use_container_width=True)
+    st.caption("刊登價未含運費與個人折價券；尺寸庫存與結帳價格以商品頁為準。")
+
+
 def render_dashboard():
     import base64
     import altair as alt
@@ -259,14 +322,6 @@ def render_dashboard():
         -webkit-mask:url(data:image/png;base64,{hero}) left center / contain no-repeat;
         mask:url(data:image/png;base64,{hero}) left center / contain no-repeat"></div>''',
         unsafe_allow_html=True)
-    info_panel = '''<section aria-label="球鞋價格追蹤資訊" style="background:rgba(45,145,220,.16);
-        border:1px solid rgba(80,170,230,.24);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0 1.5rem">
-        <h1 style="font-size:clamp(1.5rem,3vw,2.35rem);line-height:1.3;margin:0 0 .65rem;padding:0">
-        球鞋價格追蹤與 7 天預測</h1>
-        <p style="margin:0 0 .65rem;opacity:.8">真實平台刊登價 → 30／60／90 天觀測 → ARIMA 模型預測</p>
-        <p style="margin:0;line-height:1.7">每筆附採集時間、商品連結及來源摘要。只記錄成功取得的價格，
-        不把舊價當今日價格；不補造歷史。未限定尺寸／顏色，刊登價不包含運費與個人折價券。</p>
-        </section>'''
     from watchlist import load_watchlist, request_url, MAX_TRACKED
     watched = load_watchlist()
     mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋", "長期追蹤"],
@@ -282,7 +337,7 @@ def render_dashboard():
         st.sidebar.caption("選好鞋款後按「搜尋」，取得最新平台價格。")
     elif mode == "長期追蹤":
         if not watched:
-            st.markdown(info_panel, unsafe_allow_html=True)
+            st.subheader("推薦購買商品")
             st.info("尚無長期追蹤商品。請先自由搜尋，在商品下方按「加入追蹤」。")
             return
         chosen = st.sidebar.selectbox("長期追蹤商品", range(len(watched)),
@@ -336,7 +391,7 @@ def render_dashboard():
                    (mode == "下拉選單" and search["query"] != query)):
         search = None
     if mode == "自由搜尋" and not search:
-        st.markdown(info_panel, unsafe_allow_html=True)
+        st.subheader("推薦購買商品")
         st.info("請在側邊欄輸入鞋款名稱，按「搜尋」查看價格。")
         return
     if search:
@@ -367,11 +422,9 @@ def render_dashboard():
         selected = frame[frame["query"].eq(query)].copy()
         st.caption(f"目前追蹤鞋款：{query}")
     st.caption("最近收集：" + status.get("finished_at", "尚未執行"))
-    st.markdown(info_panel, unsafe_allow_html=True)
     for entry in status.get("results", []):
         if entry["query"] == query and entry["status"] != "ok":
             st.warning(f'{entry["platform"]}：{entry["message"]}')
-    st.subheader("1 · 各平台目前價格")
     today = now_tw().date().isoformat()
     current = selected[selected["date"].eq(today)].sort_values("observed_at").drop_duplicates(
         ["platform", "product_id"], keep="last")
@@ -379,6 +432,8 @@ def render_dashboard():
         current = pd.DataFrame(search["rows"], columns=COLUMNS)
         current = current[current["date"].eq(today)].drop_duplicates(
             ["platform", "product_id"], keep="last")
+    render_purchase_recommendations(current, selected)
+    st.subheader("1 · 各平台目前價格")
     for platform, col in zip(PLATFORMS, st.columns(2)):
         subset = current[current["platform"].eq(platform)]
         with col:
