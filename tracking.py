@@ -272,6 +272,8 @@ def render_dashboard():
     mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋", "長期追蹤"],
                             horizontal=True, key="shoe_query_mode")
     query = None
+    shoe_category = None
+    shoe_size = ""
     submitted = False
     if mode == "下拉選單":
         query = st.sidebar.selectbox("每日追蹤鞋款", TARGETS, key="tracked_shoe")
@@ -292,6 +294,11 @@ def render_dashboard():
         with st.sidebar.form("shoe_search"):
             search_text = st.text_input("搜尋其他鞋款", placeholder="例如：Kobe 6、Jordan 4",
                                         key="shoe_search_text")
+            shoe_category = st.radio("鞋款類別", ["男鞋", "女鞋"],
+                                     horizontal=True, key="free_shoe_category")
+            shoe_size = st.text_input("尺寸需求（選填）", placeholder="例如：US 9、EU 42、26.5 cm",
+                                      max_chars=40, key="free_shoe_size",
+                                      help="請填寫尺寸與單位。尺寸先作為需求備註，商品庫存與該尺寸價格仍須至平台確認。")
             submitted = st.form_submit_button("搜尋")
         st.sidebar.caption("輸入鞋款後按搜尋或 Enter；切換「下拉選單」可查看預設鞋款。")
     if submitted:
@@ -304,6 +311,12 @@ def render_dashboard():
                 for platform in PLATFORMS:
                     try:
                         found, result = collect_platform(keyword, platform)
+                        if mode == "自由搜尋":
+                            from app import category_matches_product
+                            found = [r for r in found if category_matches_product(shoe_category, r["title"])]
+                            result = {**result, "count": len(found),
+                                "status": "ok" if found else "no_matches",
+                                "message": "" if found else "未取得明確符合所選男女鞋類別的商品；未標示類別者不列入。"}
                         rows.extend(found)
                         results.append(result)
                     except (requests.RequestException, ValueError, KeyError, TypeError):
@@ -311,6 +324,7 @@ def render_dashboard():
                             "status": "error", "message": "即時搜尋暫時無法取得資料，請稍後再試。"})
             st.session_state["shoe_search_result"] = {
                 "mode": mode, "query": keyword, "rows": rows, "results": results,
+                "shoe_category": shoe_category, "shoe_size": shoe_size.strip(),
                 "finished_at": now_tw().isoformat(timespec="seconds")}
     days = st.sidebar.radio("歷史期間（天）", [30, 60, 90], horizontal=True)
     st.sidebar.caption("代表性鞋款清單，並非即時銷量排行。每日台灣時間 09:17 收集；排程可能延遲。")
@@ -330,11 +344,18 @@ def render_dashboard():
         status = search
         historical = frame.loc[frame["title"].map(
             lambda title: matches(query, str(title))).astype(bool)].copy()
+        if mode == "自由搜尋" and search.get("shoe_category"):
+            from app import category_matches_product
+            historical = historical.loc[historical["title"].map(
+                lambda title: category_matches_product(search["shoe_category"], str(title))).astype(bool)]
         selected = pd.concat([historical, pd.DataFrame(search["rows"], columns=COLUMNS)],
                              ignore_index=True).drop_duplicates(
                                  ["observed_at", "platform", "product_id"], keep="last")
         st.caption(f"搜尋結果：{query}")
         if mode == "自由搜尋":
+            st.caption("鞋款類別：" + search.get("shoe_category", "未指定") + "（含男女通用；依商品名稱標示篩選）")
+            if search.get("shoe_size"):
+                st.info("尺寸需求：" + search["shoe_size"] + "。目前平台資料未驗證此尺寸的庫存與價格；以下仍為商品刊登價，請至商品頁確認。長期追蹤以商品編號為單位。")
             st.caption("選擇商品後按「加入追蹤」，送出 GitHub 申請即可開始長期累積；單純搜尋不會自動加入。")
         else:
             st.caption("本次即時查詢結果保留於目前工作階段；歷史紀錄仍來自已保存的觀測。")
