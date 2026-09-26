@@ -251,11 +251,14 @@ def render_dashboard():
     import altair as alt
     import streamlit as st
     st.set_page_config(page_title="真實球鞋價格追蹤與 ARIMA", page_icon="👟", layout="wide")
-    hero = base64.b64encode((ROOT / "sneaker-hero.png").read_bytes()).decode("ascii")
-    st.markdown(f'''<div style="background:#08090b;border-radius:16px;overflow:hidden;margin-bottom:1.25rem">
-        <img src="data:image/png;base64,{hero}" alt="黑白球鞋搭配價格趨勢圖的主視覺"
-        style="display:block;width:100%;height:clamp(220px,32vw,360px);object-fit:contain;object-position:left center" />
-        </div>''', unsafe_allow_html=True)
+    hero = base64.b64encode((ROOT / "sneaker-logo.png").read_bytes()).decode("ascii")
+    # Alpha mask follows the theme text color: legible on both light and dark themes.
+    st.markdown(f'''<div role="img" aria-label="智慧球鞋價格預測系統"
+        style="width:100%;max-width:1100px;aspect-ratio:3/1;margin:0 0 1rem;
+        background-color:currentColor;
+        -webkit-mask:url(data:image/png;base64,{hero}) left center / contain no-repeat;
+        mask:url(data:image/png;base64,{hero}) left center / contain no-repeat"></div>''',
+        unsafe_allow_html=True)
     info_panel = '''<section aria-label="球鞋價格追蹤資訊" style="background:rgba(45,145,220,.16);
         border:1px solid rgba(80,170,230,.24);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0 1.5rem">
         <h1 style="font-size:clamp(1.5rem,3vw,2.35rem);line-height:1.3;margin:0 0 .65rem;padding:0">
