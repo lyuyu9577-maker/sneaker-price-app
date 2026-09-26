@@ -240,11 +240,23 @@ def forecast_arima(series, today=None):
 
 
 def render_dashboard():
+    import base64
     import altair as alt
     import streamlit as st
     st.set_page_config(page_title="真實球鞋價格追蹤與 ARIMA", page_icon="👟", layout="wide")
-    st.title("球鞋價格追蹤與 7 天預測")
-    st.caption("真實平台刊登價 → 30／60／90 天觀測 → ARIMA 模型預測")
+    hero = base64.b64encode((ROOT / "sneaker-hero.png").read_bytes()).decode("ascii")
+    st.markdown(f'''<div style="background:#08090b;border-radius:16px;overflow:hidden;margin-bottom:1.25rem">
+        <img src="data:image/png;base64,{hero}" alt="黑白球鞋搭配價格趨勢圖的主視覺"
+        style="display:block;width:100%;height:clamp(220px,32vw,360px);object-fit:contain" />
+        </div>''', unsafe_allow_html=True)
+    info_panel = '''<section aria-label="球鞋價格追蹤資訊" style="background:rgba(45,145,220,.16);
+        border:1px solid rgba(80,170,230,.24);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0 1.5rem">
+        <h1 style="font-size:clamp(1.5rem,3vw,2.35rem);line-height:1.3;margin:0 0 .65rem;padding:0">
+        球鞋價格追蹤與 7 天預測</h1>
+        <p style="margin:0 0 .65rem;opacity:.8">真實平台刊登價 → 30／60／90 天觀測 → ARIMA 模型預測</p>
+        <p style="margin:0;line-height:1.7">每筆附採集時間、商品連結及來源摘要。只記錄成功取得的價格，
+        不把舊價當今日價格；不補造歷史。未限定尺寸／顏色，刊登價不包含運費與個人折價券。</p>
+        </section>'''
     mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋"],
                             horizontal=True, key="shoe_query_mode")
     query = None
@@ -288,6 +300,7 @@ def render_dashboard():
                    (mode == "下拉選單" and search["query"] != query)):
         search = None
     if mode == "自由搜尋" and not search:
+        st.markdown(info_panel, unsafe_allow_html=True)
         st.info("請在側邊欄輸入鞋款名稱，按「搜尋」查看價格。")
         return
     if search:
@@ -307,8 +320,7 @@ def render_dashboard():
         selected = frame[frame["query"].eq(query)].copy()
         st.caption(f"目前追蹤鞋款：{query}")
     st.caption("最近收集：" + status.get("finished_at", "尚未執行"))
-    st.info("每筆附採集時間、商品連結及來源摘要。只記錄成功取得的價格，不把舊價當今日價格；"
-            "不補造歷史。未限定尺寸／顏色，刊登價不包含運費與個人折價券。")
+    st.markdown(info_panel, unsafe_allow_html=True)
     for entry in status.get("results", []):
         if entry["query"] == query and entry["status"] != "ok":
             st.warning(f'{entry["platform"]}：{entry["message"]}')
