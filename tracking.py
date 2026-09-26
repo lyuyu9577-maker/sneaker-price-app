@@ -62,7 +62,7 @@ def observation(query, platform, product_id, title, url, price, response, item):
     }
 
 
-def collect_platform(query, platform):
+def collect_platform(query, platform, exact_product_id=None):
     rows = []
     session = requests.Session()
     session.headers.update(HEADERS)
@@ -79,7 +79,9 @@ def collect_platform(query, platform):
                 for item in payload["prods"]:
                     name, pid = item.get("name"), item.get("Id")
                     price = numeric_price(item.get("price"))
-                    if not name or not pid or price is None or not matches(query, name):
+                    if not name or not pid or price is None:
+                        continue
+                    if (str(pid) != exact_product_id if exact_product_id else not matches(query, name)):
                         continue
                     rows.append(observation(query, platform, pid, name,
                         f"https://24h.pchome.com.tw/prod/{pid}", price, response, item))
@@ -111,13 +113,17 @@ def collect_platform(query, platform):
                         availability = offers.get("availability", "")
                         if any(x in availability for x in ("OutOfStock", "Discontinued", "SoldOut")):
                             continue
-                        if not name or not url or price is None or not matches(query, name):
+                        if not name or not url or price is None:
+                            continue
+                        if not exact_product_id and not matches(query, name):
                             continue
                         parsed = urlparse(url)
                         if parsed.hostname not in {"www.momoshop.com.tw", "momoshop.com.tw"}:
                             continue
                         pid = parse_qs(parsed.query).get("i_code", [None])[0]
                         if not pid:
+                            continue
+                        if exact_product_id and pid != exact_product_id:
                             continue
                         url = "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?" + urlencode({"i_code": pid})
                         rows.append(observation(query, platform, pid, name, url, price, response, item))
@@ -247,7 +253,7 @@ def render_dashboard():
     hero = base64.b64encode((ROOT / "sneaker-hero.png").read_bytes()).decode("ascii")
     st.markdown(f'''<div style="background:#08090b;border-radius:16px;overflow:hidden;margin-bottom:1.25rem">
         <img src="data:image/png;base64,{hero}" alt="黑白球鞋搭配價格趨勢圖的主視覺"
-        style="display:block;width:100%;height:clamp(220px,32vw,360px);object-fit:contain" />
+        style="display:block;width:100%;height:clamp(220px,32vw,360px);object-fit:contain;object-position:left center" />
         </div>''', unsafe_allow_html=True)
     info_panel = '''<section aria-label="球鞋價格追蹤資訊" style="background:rgba(45,145,220,.16);
         border:1px solid rgba(80,170,230,.24);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0 1.5rem">
@@ -257,7 +263,9 @@ def render_dashboard():
         <p style="margin:0;line-height:1.7">每筆附採集時間、商品連結及來源摘要。只記錄成功取得的價格，
         不把舊價當今日價格；不補造歷史。未限定尺寸／顏色，刊登價不包含運費與個人折價券。</p>
         </section>'''
-    mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋"],
+    from watchlist import load_watchlist, request_url, MAX_TRACKED
+    watched = load_watchlist()
+    mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋", "長期追蹤"],
                             horizontal=True, key="shoe_query_mode")
     query = None
     submitted = False
@@ -266,6 +274,16 @@ def render_dashboard():
         submitted = st.sidebar.button("搜尋", key="search_tracked_shoe")
         search_text = query
         st.sidebar.caption("選好鞋款後按「搜尋」，取得最新平台價格。")
+    elif mode == "長期追蹤":
+        if not watched:
+            st.markdown(info_panel, unsafe_allow_html=True)
+            st.info("尚無長期追蹤商品。請先自由搜尋，在商品下方按「加入追蹤」。")
+            return
+        chosen = st.sidebar.selectbox("長期追蹤商品", range(len(watched)),
+            format_func=lambda i: watched[i]["platform"] + " · " + watched[i]["title"])
+        target = watched[chosen]
+        query = target["query"]
+        st.sidebar.caption(f"全站追蹤 {len(watched)}／{MAX_TRACKED} 件；每日自動收集同一商品。")
     else:
         with st.sidebar.form("shoe_search"):
             search_text = st.text_input("搜尋其他鞋款", placeholder="例如：Kobe 6、Jordan 4",
@@ -313,9 +331,13 @@ def render_dashboard():
                                  ["observed_at", "platform", "product_id"], keep="last")
         st.caption(f"搜尋結果：{query}")
         if mode == "自由搜尋":
-            st.caption("自訂搜尋不會加入每日自動追蹤；本次結果保留於目前工作階段。")
+            st.caption("選擇商品後按「加入追蹤」，送出 GitHub 申請即可開始長期累積；單純搜尋不會自動加入。")
         else:
             st.caption("本次即時查詢結果保留於目前工作階段；歷史紀錄仍來自已保存的觀測。")
+    elif mode == "長期追蹤":
+        selected = frame[frame["platform"].eq(target["platform"]) &
+                         frame["product_id"].eq(target["product_id"])].copy()
+        st.caption(f"長期追蹤：{target['title']} · {target['product_id']}")
     else:
         selected = frame[frame["query"].eq(query)].copy()
         st.caption(f"目前追蹤鞋款：{query}")
@@ -360,6 +382,14 @@ def render_dashboard():
         with st.expander(platform + " · 固定商品走勢與預測", expanded=True):
             pid = st.selectbox("商品", list(names), format_func=lambda p, names=names: names[p] + " [" + p + "]", key=platform)
             product = items[items["product_id"].eq(pid)]
+            st.caption(f"固定商品編號：{pid}")
+            if any(w["platform"] == platform and w["product_id"] == pid for w in watched):
+                st.success("已加入每日長期追蹤")
+            elif len(watched) >= MAX_TRACKED:
+                st.info(f"全站追蹤名額已滿（{MAX_TRACKED} 件）。")
+            elif not current[(current["platform"] == platform) & (current["product_id"] == pid)].empty:
+                st.link_button("加入追蹤", request_url(platform, pid, query))
+                st.caption(f"需登入 GitHub 並送出預填申請；驗證成功後加入全站共用清單（上限 {MAX_TRACKED} 件）。申請與清單公開，請勿填入個人資料。")
             series = daily_series(product)
             period = series.reindex(pd.date_range(now_tw().date()-timedelta(days=days-1), periods=days))
             history = pd.DataFrame({"日期":period.index, "實際刊登價":period.values})
