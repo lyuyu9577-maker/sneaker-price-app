@@ -332,6 +332,11 @@ def render_dashboard():
     submitted = False
     if mode == "下拉選單":
         query = st.sidebar.selectbox("每日追蹤鞋款", TARGETS, key="tracked_shoe")
+        shoe_category = st.sidebar.radio("鞋款類別", ["男鞋", "女鞋"],
+                                         horizontal=True, key="tracked_shoe_category")
+        shoe_size = st.sidebar.selectbox("尺寸（cm）", [""] + [f"{n / 2:g} cm" for n in range(40, 65)],
+            format_func=lambda value: value or "不限尺寸", key="tracked_shoe_size",
+            help="尺寸作為需求備註；目前平台資料無法驗證個別尺寸的庫存與價格，請至商品頁確認。")
         submitted = st.sidebar.button("搜尋", key="search_tracked_shoe")
         search_text = query
         st.sidebar.caption("選好鞋款後按「搜尋」，取得最新平台價格。")
@@ -366,7 +371,7 @@ def render_dashboard():
                 for platform in PLATFORMS:
                     try:
                         found, result = collect_platform(keyword, platform)
-                        if mode == "自由搜尋":
+                        if shoe_category:
                             from app import category_matches_product
                             found = [r for r in found if category_matches_product(shoe_category, r["title"])]
                             result = {**result, "count": len(found),
@@ -388,7 +393,8 @@ def render_dashboard():
     status = json.loads(STATUS.read_text(encoding="utf-8")) if STATUS.exists() else {}
     search = st.session_state.get("shoe_search_result")
     if search and (search.get("mode") != mode or
-                   (mode == "下拉選單" and search["query"] != query)):
+                   (mode == "下拉選單" and (search["query"] != query or
+                    search.get("shoe_category") != shoe_category or search.get("shoe_size") != shoe_size))):
         search = None
     if mode == "自由搜尋" and not search:
         st.subheader("推薦購買商品")
@@ -399,7 +405,7 @@ def render_dashboard():
         status = search
         historical = frame.loc[frame["title"].map(
             lambda title: matches(query, str(title))).astype(bool)].copy()
-        if mode == "自由搜尋" and search.get("shoe_category"):
+        if search.get("shoe_category"):
             from app import category_matches_product
             historical = historical.loc[historical["title"].map(
                 lambda title: category_matches_product(search["shoe_category"], str(title))).astype(bool)]
@@ -407,7 +413,7 @@ def render_dashboard():
                              ignore_index=True).drop_duplicates(
                                  ["observed_at", "platform", "product_id"], keep="last")
         st.caption(f"搜尋結果：{query}")
-        if mode == "自由搜尋":
+        if mode in ("自由搜尋", "下拉選單"):
             if search.get("shoe_size"):
                 st.info("尺寸需求：" + search["shoe_size"] + "。目前平台資料未驗證此尺寸的庫存與價格；以下仍為商品刊登價，請至商品頁確認。長期追蹤以商品編號為單位。")
         else:
@@ -418,7 +424,12 @@ def render_dashboard():
         st.caption(f"長期追蹤：{target['title']} · {target['product_id']}")
     else:
         selected = frame[frame["query"].eq(query)].copy()
+        from app import category_matches_product
+        selected = selected.loc[selected["title"].map(
+            lambda title: category_matches_product(shoe_category, str(title))).astype(bool)]
         st.caption(f"目前追蹤鞋款：{query}")
+        if shoe_size:
+            st.info("尺寸需求：" + shoe_size + "。目前平台資料未驗證此尺寸的庫存與價格，請至商品頁確認。")
     for entry in status.get("results", []):
         if entry["query"] == query and entry["status"] != "ok":
             st.warning(f'{entry["platform"]}：{entry["message"]}')
