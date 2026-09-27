@@ -314,6 +314,27 @@ def render_dashboard():
     import altair as alt
     import streamlit as st
     st.set_page_config(page_title="真實球鞋價格追蹤與 ARIMA", page_icon="👟", layout="wide")
+    st.markdown("""<style>
+    .stApp {background:#f7f8f5;color:#202b26;font-family:"Segoe UI","Microsoft JhengHei",sans-serif;}
+    [data-testid="stHeader"] {background:rgba(247,248,245,.96);}
+    [data-testid="stSidebar"] {background:#eef2ed;border-right:1px solid #dce4dc;}
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {color:#35473c;}
+    h1,h2,h3 {color:#183f30;letter-spacing:-.02em;}
+    [data-testid="stCaptionContainer"] {color:#637369;}
+    [data-testid="stVerticalBlockBorderWrapper"] > div {border-color:#dce5dc!important;border-radius:14px!important;box-shadow:0 3px 14px rgba(25,63,46,.035);}
+    [data-testid="stVerticalBlockBorderWrapper"] {background:#fff;border-radius:14px;}
+    [data-testid="stMetricValue"] {color:#176342;font-weight:650;}
+    [data-testid="stMetricLabel"] {color:#53665a;}
+    .stButton button,.stFormSubmitButton button,.stLinkButton a,.stDownloadButton button {background:#196044;color:white;border:1px solid #196044;border-radius:9px;font-weight:600;box-shadow:0 2px 4px rgba(25,63,46,.06);}
+    .stButton button:hover,.stFormSubmitButton button:hover,.stLinkButton a:hover,.stDownloadButton button:hover {background:#124b34;color:white;border-color:#124b34;}
+    .stButton button:focus-visible,.stLinkButton a:focus-visible {outline:3px solid #98bba9;outline-offset:2px;}
+    [data-testid="stSelectbox"] [data-baseweb="select"] > div,[data-testid="stTextInput"] [data-baseweb="input"] {background:#fff;border-color:#cddbd0;border-radius:9px;color:#202b26;}
+    [data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within,[data-testid="stTextInput"] [data-baseweb="input"]:focus-within {border-color:#196044;}
+    [data-testid="stRadio"] label:has(input:checked) > div:first-child {background-color:#196044!important;border-color:#196044!important;}
+    [data-testid="stExpander"] {background:#fff;border-color:#dce5dc;border-radius:12px;}
+    [data-testid="stDataFrame"],[data-testid="stVegaLiteChart"] {border-radius:10px;}
+    [data-testid="stAlert"] {border-radius:10px;}
+    </style>""", unsafe_allow_html=True)
     hero = base64.b64encode((ROOT / "sneaker-logo.png").read_bytes()).decode("ascii")
     # Alpha mask follows the theme text color: legible on both light and dark themes.
     st.markdown(f'''<div role="img" aria-label="智慧球鞋價格預測系統"
