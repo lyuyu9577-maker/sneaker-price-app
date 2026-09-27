@@ -331,7 +331,7 @@ def render_dashboard():
     .stButton button:focus-visible,.stLinkButton a:focus-visible {outline:3px solid #98bba9;outline-offset:2px;}
     [data-testid="stSelectbox"] [data-baseweb="select"] > div,[data-testid="stTextInput"] [data-baseweb="input"] {background:#fff;border-color:#cddbd0;border-radius:9px;color:#202b26;}
     [data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within,[data-testid="stTextInput"] [data-baseweb="input"]:focus-within {border-color:#196044;}
-    [data-testid="stRadio"] label:has(input:checked) > div:first-child {background-color:#196044!important;border-color:#196044!important;}
+    [data-testid="stRadioOption"][data-selected="true"] > div > div:first-child {background-color:#196044!important;border-color:#196044!important;}
     [data-testid="stExpander"] {background:#fff;border-color:#dce5dc;border-radius:12px;}
     [data-testid="stDataFrame"],[data-testid="stVegaLiteChart"] {border-radius:10px;}
     [data-testid="stAlert"] {border-radius:10px;}
