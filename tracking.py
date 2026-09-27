@@ -20,7 +20,7 @@ TARGETS = [
     "Jordan 1 Low", "Dunk Low", "Air Force 1",
     "Adidas Samba", "New Balance 530", "New Balance 9060",
 ]
-PLATFORMS = ["PChome", "momo購物網"]
+PLATFORMS = ["PChome", "momo購物網", "ABC-MART"]
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0 Safari/537.36"}
 COLUMNS = ["observed_at", "date", "query", "platform", "product_id", "title", "url",
            "price", "currency", "price_scope", "source_url", "response_sha256",
@@ -62,6 +62,45 @@ def observation(query, platform, product_id, title, url, price, response, item):
     }
 
 
+def parse_abc_products(response, query, exact_product_id=None):
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(response.text, "html.parser")
+    if not soup.select_one(".page-products"):
+        raise ValueError("ABC-MART 搜尋頁格式異常，未記錄價格")
+    rows = []
+    for card in soup.select("li.product-item"):
+        def text(selector):
+            node = card.select_one(selector)
+            return node.get_text(" ", strip=True) if node else ""
+        link = card.select_one("a.product-link")
+        url = link.get("href", "") if link else ""
+        parsed = urlparse(url)
+        if parsed.scheme != "https" or parsed.hostname != "www.abc-mart.com.tw":
+            continue
+        pid = parsed.path.removeprefix("/product/")
+        if not parsed.path.startswith("/product/") or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", pid):
+            continue
+        name, brand, gender = text(".product-name"), text(".product-brand"), text(".product-gender")
+        gender = gender.replace("童款", "童鞋")
+        if not re.search(r"item_category:\s*['\"]鞋['\"]", str(card)):
+            continue
+        title = " ".join(x for x in (brand, name, gender, "鞋", pid.upper()) if x)
+        if re.search(r"\b(mules?|clogs?|sandals?|slippers?)\b", name, re.I):
+            continue
+        raw_price = text(".special-price .price")
+        # Never substitute the crossed-out list price for the current selling price.
+        price = numeric_price(re.sub(r"^NT\.\s*", "", raw_price))
+        if not name or price is None or any(x in text(".product-offer") for x in ("售完", "售罄")):
+            continue
+        if (pid.lower() != exact_product_id.lower() if exact_product_id else not matches(query, title)):
+            continue
+        evidence = {"name": name, "brand": brand, "gender": text(".product-gender"),
+                    "price_text": raw_price, "url": url, "card_html": str(card)}
+        rows.append(observation(query, "ABC-MART", pid.lower(), title, url, price, response, evidence))
+    return rows, bool(soup.select_one('a[rel="next"]') or any(
+        a.get_text(strip=True) == "›" for a in soup.select('a[href*="page="]')))
+
+
 def collect_platform(query, platform, exact_product_id=None):
     rows = []
     session = requests.Session()
@@ -88,7 +127,17 @@ def collect_platform(query, platform, exact_product_id=None):
                 if (not payload["prods"] or (exact_product_id and rows) or
                         (isinstance(payload.get("totalPage"), int) and page >= payload["totalPage"])):
                     break
-        else:
+        elif platform == "ABC-MART":
+            search_query = re.sub(r"^(?:adidas|nike|new\s+balance|nb)\s+", "", query, flags=re.I).strip() or query
+            for page in (1, 2):
+                response = session.get("https://www.abc-mart.com.tw/catalogsearch/result",
+                    params={"q": search_query, "page": page}, timeout=25)
+                response.raise_for_status()
+                found, has_next = parse_abc_products(response, query, exact_product_id)
+                rows.extend(found)
+                if not has_next or (exact_product_id and rows):
+                    break
+        elif platform == "momo購物網":
             response = session.get("https://www.momoshop.com.tw/search/" + quote_plus(query),
                                    params={"viewport": "desktop"}, timeout=25)
             response.raise_for_status()
@@ -130,6 +179,8 @@ def collect_platform(query, platform, exact_product_id=None):
                         rows.append(observation(query, platform, pid, name, url, price, response, item))
             if not found_list:
                 raise ValueError("未取得商品結構化資料；可能遭驗證或頁面格式改變")
+        else:
+            raise ValueError("不支援的平台")
         unique = {(r["platform"], r["product_id"]): r for r in rows}
         return list(unique.values()), {"query": query, "platform": platform,
             "status": "ok" if unique else "no_matches", "count": len(unique),
@@ -265,7 +316,7 @@ def recommend_products(current, history, limit=3):
     for rank, row in enumerate(rows.to_dict("records"), 1):
         parsed = urlparse(row["url"])
         if parsed.scheme != "https" or parsed.hostname not in {
-            "24h.pchome.com.tw", "www.momoshop.com.tw", "momoshop.com.tw"}:
+            "24h.pchome.com.tw", "www.momoshop.com.tw", "momoshop.com.tw", "www.abc-mart.com.tw"}:
             continue
         old = history[history["platform"].eq(row["platform"]) &
                       history["product_id"].eq(row["product_id"]) &
@@ -464,7 +515,7 @@ def render_dashboard():
             ["platform", "product_id"], keep="last")
     render_purchase_recommendations(current, selected)
     st.subheader("1 · 各平台目前價格")
-    for platform, col in zip(PLATFORMS, st.columns(2)):
+    for platform, col in zip(PLATFORMS, st.columns(len(PLATFORMS))):
         subset = current[current["platform"].eq(platform)]
         with col:
             if subset.empty:
