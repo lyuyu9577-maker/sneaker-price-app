@@ -467,7 +467,7 @@ def render_dashboard():
     current = current[current["platform"].isin(PLATFORMS)]
     render_purchase_recommendations(current, selected)
     st.subheader("1 · 各平台目前價格")
-    platform_columns = st.columns(len(PLATFORMS) + 1)
+    platform_columns = st.columns(len(PLATFORMS))
     for platform, col in zip(PLATFORMS, platform_columns):
         subset = current[current["platform"].eq(platform)]
         with col:
@@ -476,10 +476,6 @@ def render_dashboard():
             else:
                 st.metric(platform + " · 今日觀測最低刊登價", f'NT$ {subset["price"].min():,.0f}')
                 st.caption(f'{len(subset)} 個商品；不同商品／配色／尺寸可能價格不同。')
-    with platform_columns[-1]:
-        st.metric("蝦皮購物", "尚未接入即時價格")
-        st.link_button("前往蝦皮搜尋", "https://shopee.tw/search?" + urlencode({"keyword": query}))
-        st.caption("價格請至蝦皮確認；暫不納入推薦排行、每日紀錄或預測。")
     if not current.empty:
         table = current.sort_values(["platform", "price"])[["platform", "title", "price", "observed_at", "url"]]
         st.dataframe(table.rename(columns={"platform":"平台","title":"商品","price":"刊登價",
