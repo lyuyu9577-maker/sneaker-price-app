@@ -11,11 +11,9 @@ REPO = 'https://github.com/lyuyu9577-maker/sneaker-price-app'
 
 def validate_request(value):
     platform, pid, query = (value.get(k) for k in ('platform', 'product_id', 'query'))
-    if platform not in ('PChome', 'momo購物網', 'ABC-MART'):
+    if platform not in ('PChome', 'momo購物網'):
         raise ValueError('不支援的平台')
     pattern = r'[A-Z0-9]{6}-[A-Z0-9]+' if platform == 'PChome' else r'[0-9]{1,20}'
-    if platform == 'ABC-MART':
-        pattern = r'[a-z0-9_-]{1,100}'
     if not isinstance(pid, str) or not re.fullmatch(pattern, pid):
         raise ValueError('商品編號格式不正確')
     if not isinstance(query, str) or not 1 <= len(query.strip()) <= 100:

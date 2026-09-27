@@ -20,7 +20,7 @@ TARGETS = [
     "Jordan 1 Low", "Dunk Low", "Air Force 1",
     "Adidas Samba", "New Balance 530", "New Balance 9060",
 ]
-PLATFORMS = ["PChome", "momo購物網", "ABC-MART"]
+PLATFORMS = ["PChome", "momo購物網"]
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0 Safari/537.36"}
 COLUMNS = ["observed_at", "date", "query", "platform", "product_id", "title", "url",
            "price", "currency", "price_scope", "source_url", "response_sha256",
@@ -62,45 +62,6 @@ def observation(query, platform, product_id, title, url, price, response, item):
     }
 
 
-def parse_abc_products(response, query, exact_product_id=None):
-    from bs4 import BeautifulSoup
-    soup = BeautifulSoup(response.text, "html.parser")
-    if not soup.select_one(".page-products"):
-        raise ValueError("ABC-MART 搜尋頁格式異常，未記錄價格")
-    rows = []
-    for card in soup.select("li.product-item"):
-        def text(selector):
-            node = card.select_one(selector)
-            return node.get_text(" ", strip=True) if node else ""
-        link = card.select_one("a.product-link")
-        url = link.get("href", "") if link else ""
-        parsed = urlparse(url)
-        if parsed.scheme != "https" or parsed.hostname != "www.abc-mart.com.tw":
-            continue
-        pid = parsed.path.removeprefix("/product/")
-        if not parsed.path.startswith("/product/") or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", pid):
-            continue
-        name, brand, gender = text(".product-name"), text(".product-brand"), text(".product-gender")
-        gender = gender.replace("童款", "童鞋")
-        if not re.search(r"item_category:\s*['\"]鞋['\"]", str(card)):
-            continue
-        title = " ".join(x for x in (brand, name, gender, "鞋", pid.upper()) if x)
-        if re.search(r"\b(mules?|clogs?|sandals?|slippers?)\b", name, re.I):
-            continue
-        raw_price = text(".special-price .price")
-        # Never substitute the crossed-out list price for the current selling price.
-        price = numeric_price(re.sub(r"^NT\.\s*", "", raw_price))
-        if not name or price is None or any(x in text(".product-offer") for x in ("售完", "售罄")):
-            continue
-        if (pid.lower() != exact_product_id.lower() if exact_product_id else not matches(query, title)):
-            continue
-        evidence = {"name": name, "brand": brand, "gender": text(".product-gender"),
-                    "price_text": raw_price, "url": url, "card_html": str(card)}
-        rows.append(observation(query, "ABC-MART", pid.lower(), title, url, price, response, evidence))
-    return rows, bool(soup.select_one('a[rel="next"]') or any(
-        a.get_text(strip=True) == "›" for a in soup.select('a[href*="page="]')))
-
-
 def collect_platform(query, platform, exact_product_id=None):
     rows = []
     session = requests.Session()
@@ -126,16 +87,6 @@ def collect_platform(query, platform, exact_product_id=None):
                         f"https://24h.pchome.com.tw/prod/{pid}", price, response, item))
                 if (not payload["prods"] or (exact_product_id and rows) or
                         (isinstance(payload.get("totalPage"), int) and page >= payload["totalPage"])):
-                    break
-        elif platform == "ABC-MART":
-            search_query = re.sub(r"^(?:adidas|nike|new\s+balance|nb)\s+", "", query, flags=re.I).strip() or query
-            for page in (1, 2):
-                response = session.get("https://www.abc-mart.com.tw/catalogsearch/result",
-                    params={"q": search_query, "page": page}, timeout=25)
-                response.raise_for_status()
-                found, has_next = parse_abc_products(response, query, exact_product_id)
-                rows.extend(found)
-                if not has_next or (exact_product_id and rows):
                     break
         elif platform == "momo購物網":
             response = session.get("https://www.momoshop.com.tw/search/" + quote_plus(query),
@@ -316,7 +267,7 @@ def recommend_products(current, history, limit=3):
     for rank, row in enumerate(rows.to_dict("records"), 1):
         parsed = urlparse(row["url"])
         if parsed.scheme != "https" or parsed.hostname not in {
-            "24h.pchome.com.tw", "www.momoshop.com.tw", "momoshop.com.tw", "www.abc-mart.com.tw"}:
+            "24h.pchome.com.tw", "www.momoshop.com.tw", "momoshop.com.tw"}:
             continue
         old = history[history["platform"].eq(row["platform"]) &
                       history["product_id"].eq(row["product_id"]) &
@@ -504,7 +455,7 @@ def render_dashboard():
         if shoe_size:
             st.info("尺寸需求：" + shoe_size + "。目前平台資料未驗證此尺寸的庫存與價格，請至商品頁確認。")
     for entry in status.get("results", []):
-        if entry["query"] == query and entry["status"] != "ok":
+        if entry["platform"] in PLATFORMS and entry["query"] == query and entry["status"] != "ok":
             st.warning(f'{entry["platform"]}：{entry["message"]}')
     today = now_tw().date().isoformat()
     current = selected[selected["date"].eq(today)].sort_values("observed_at").drop_duplicates(
@@ -513,9 +464,11 @@ def render_dashboard():
         current = pd.DataFrame(search["rows"], columns=COLUMNS)
         current = current[current["date"].eq(today)].drop_duplicates(
             ["platform", "product_id"], keep="last")
+    current = current[current["platform"].isin(PLATFORMS)]
     render_purchase_recommendations(current, selected)
     st.subheader("1 · 各平台目前價格")
-    for platform, col in zip(PLATFORMS, st.columns(len(PLATFORMS))):
+    platform_columns = st.columns(len(PLATFORMS) + 1)
+    for platform, col in zip(PLATFORMS, platform_columns):
         subset = current[current["platform"].eq(platform)]
         with col:
             if subset.empty:
@@ -523,6 +476,10 @@ def render_dashboard():
             else:
                 st.metric(platform + " · 今日觀測最低刊登價", f'NT$ {subset["price"].min():,.0f}')
                 st.caption(f'{len(subset)} 個商品；不同商品／配色／尺寸可能價格不同。')
+    with platform_columns[-1]:
+        st.metric("蝦皮購物", "尚未接入即時價格")
+        st.link_button("前往蝦皮搜尋", "https://shopee.tw/search?" + urlencode({"keyword": query}))
+        st.caption("價格請至蝦皮確認；暫不納入推薦排行、每日紀錄或預測。")
     if not current.empty:
         table = current.sort_values(["platform", "price"])[["platform", "title", "price", "observed_at", "url"]]
         st.dataframe(table.rename(columns={"platform":"平台","title":"商品","price":"刊登價",
