@@ -326,6 +326,7 @@ def render_dashboard():
     [data-testid="stMetricValue"] {color:#176342;font-weight:650;}
     [data-testid="stMetricLabel"] {color:#53665a;}
     .stButton button,.stFormSubmitButton button,.stLinkButton a,.stDownloadButton button {background:#196044;color:white;border:1px solid #196044;border-radius:9px;font-weight:600;box-shadow:0 2px 4px rgba(25,63,46,.06);}
+    [data-testid="stSidebar"] .stButton button p,[data-testid="stSidebar"] .stFormSubmitButton button p,[data-testid="stSidebar"] .stLinkButton a p {color:white;}
     .stButton button:hover,.stFormSubmitButton button:hover,.stLinkButton a:hover,.stDownloadButton button:hover {background:#124b34;color:white;border-color:#124b34;}
     .stButton button:focus-visible,.stLinkButton a:focus-visible {outline:3px solid #98bba9;outline-offset:2px;}
     [data-testid="stSelectbox"] [data-baseweb="select"] > div,[data-testid="stTextInput"] [data-baseweb="input"] {background:#fff;border-color:#cddbd0;border-radius:9px;color:#202b26;}
