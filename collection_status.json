@@ -1,21 +1,21 @@
 {
-  "finished_at": "2026-09-27T20:49:05+08:00",
-  "new_observations": 298,
+  "finished_at": "2026-09-28T09:28:12+08:00",
+  "new_observations": 293,
   "results": [
-    {
-      "query": "Jordan 1 Low",
-      "platform": "ABC-MART",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-09-27T20:48:57+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.abc-mart.com.tw/catalogsearch/result?q=Jordan+1+Low&page=1"
-    },
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "ok",
       "count": 19,
-      "checked_at": "2026-09-27T20:48:58+08:00",
+      "checked_at": "2026-09-28T09:28:07+08:00",
+      "message": ""
+    },
+    {
+      "query": "Dunk Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 33,
+      "checked_at": "2026-09-28T09:28:08+08:00",
       "message": ""
     },
     {
@@ -23,23 +23,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 32,
-      "checked_at": "2026-09-27T20:48:59+08:00",
-      "message": ""
-    },
-    {
-      "query": "Dunk Low",
-      "platform": "ABC-MART",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-09-27T20:48:59+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.abc-mart.com.tw/catalogsearch/result?q=Dunk+Low&page=1"
-    },
-    {
-      "query": "Dunk Low",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 33,
-      "checked_at": "2026-09-27T20:48:59+08:00",
+      "checked_at": "2026-09-28T09:28:08+08:00",
       "message": ""
     },
     {
@@ -47,23 +31,15 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 22,
-      "checked_at": "2026-09-27T20:48:59+08:00",
+      "checked_at": "2026-09-28T09:28:08+08:00",
       "message": ""
-    },
-    {
-      "query": "Air Force 1",
-      "platform": "ABC-MART",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-09-27T20:48:59+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.abc-mart.com.tw/catalogsearch/result?q=Air+Force+1&page=1"
     },
     {
       "query": "Air Force 1",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 15,
-      "checked_at": "2026-09-27T20:49:00+08:00",
+      "count": 14,
+      "checked_at": "2026-09-28T09:28:09+08:00",
       "message": ""
     },
     {
@@ -71,23 +47,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 38,
-      "checked_at": "2026-09-27T20:49:01+08:00",
-      "message": ""
-    },
-    {
-      "query": "Adidas Samba",
-      "platform": "ABC-MART",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-09-27T20:49:01+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.abc-mart.com.tw/catalogsearch/result?q=Samba&page=1"
-    },
-    {
-      "query": "Adidas Samba",
-      "platform": "momo購物網",
-      "status": "ok",
-      "count": 25,
-      "checked_at": "2026-09-27T20:49:01+08:00",
+      "checked_at": "2026-09-28T09:28:09+08:00",
       "message": ""
     },
     {
@@ -95,31 +55,15 @@
       "platform": "PChome",
       "status": "ok",
       "count": 31,
-      "checked_at": "2026-09-27T20:49:01+08:00",
+      "checked_at": "2026-09-28T09:28:10+08:00",
       "message": ""
     },
     {
-      "query": "New Balance 530",
-      "platform": "ABC-MART",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-09-27T20:49:01+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.abc-mart.com.tw/catalogsearch/result?q=530&page=1"
-    },
-    {
-      "query": "New Balance 530",
+      "query": "Adidas Samba",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 16,
-      "checked_at": "2026-09-27T20:49:02+08:00",
-      "message": ""
-    },
-    {
-      "query": "New Balance 9060",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 19,
-      "checked_at": "2026-09-27T20:49:03+08:00",
+      "count": 25,
+      "checked_at": "2026-09-28T09:28:10+08:00",
       "message": ""
     },
     {
@@ -127,23 +71,31 @@
       "platform": "PChome",
       "status": "ok",
       "count": 25,
-      "checked_at": "2026-09-27T20:49:03+08:00",
+      "checked_at": "2026-09-28T09:28:10+08:00",
       "message": ""
     },
     {
-      "query": "New Balance 9060",
-      "platform": "ABC-MART",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-09-27T20:49:03+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.abc-mart.com.tw/catalogsearch/result?q=9060&page=1"
+      "query": "New Balance 530",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 14,
+      "checked_at": "2026-09-28T09:28:11+08:00",
+      "message": ""
     },
     {
       "query": "New Balance 9060",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 21,
-      "checked_at": "2026-09-27T20:49:03+08:00",
+      "count": 18,
+      "checked_at": "2026-09-28T09:28:11+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 20,
+      "checked_at": "2026-09-28T09:28:11+08:00",
       "message": ""
     },
     {
@@ -151,7 +103,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-09-27T20:49:04+08:00",
+      "checked_at": "2026-09-28T09:28:12+08:00",
       "message": "",
       "product_id": "DXAXFC-A900JT1O2"
     },
@@ -160,7 +112,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-09-27T20:49:05+08:00",
+      "checked_at": "2026-09-28T09:28:12+08:00",
       "message": "",
       "product_id": "DXAX7T-A900KB06A"
     }
