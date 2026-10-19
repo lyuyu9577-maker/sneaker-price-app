@@ -1,53 +1,53 @@
 {
-  "finished_at": "2026-10-18T09:41:17+08:00",
-  "new_observations": 270,
+  "finished_at": "2026-10-19T09:44:27+08:00",
+  "new_observations": 293,
   "results": [
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 17,
-      "checked_at": "2026-10-18T09:41:13+08:00",
+      "count": 12,
+      "checked_at": "2026-10-19T09:44:21+08:00",
       "message": ""
-    },
-    {
-      "query": "Dunk Low",
-      "platform": "momo購物網",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-10-18T09:41:13+08:00",
-      "message": "ValueError: 未取得商品結構化資料；可能遭驗證或頁面格式改變"
     },
     {
       "query": "Dunk Low",
       "platform": "PChome",
       "status": "ok",
       "count": 32,
-      "checked_at": "2026-10-18T09:41:14+08:00",
+      "checked_at": "2026-10-19T09:44:21+08:00",
       "message": ""
     },
     {
       "query": "Jordan 1 Low",
       "platform": "PChome",
       "status": "ok",
-      "count": 33,
-      "checked_at": "2026-10-18T09:41:14+08:00",
+      "count": 32,
+      "checked_at": "2026-10-19T09:44:22+08:00",
+      "message": ""
+    },
+    {
+      "query": "Dunk Low",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 24,
+      "checked_at": "2026-10-19T09:44:22+08:00",
       "message": ""
     },
     {
       "query": "Air Force 1",
       "platform": "PChome",
       "status": "ok",
-      "count": 38,
-      "checked_at": "2026-10-18T09:41:14+08:00",
+      "count": 37,
+      "checked_at": "2026-10-19T09:44:23+08:00",
       "message": ""
     },
     {
       "query": "Air Force 1",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 17,
-      "checked_at": "2026-10-18T09:41:15+08:00",
+      "count": 18,
+      "checked_at": "2026-10-19T09:44:23+08:00",
       "message": ""
     },
     {
@@ -55,31 +55,23 @@
       "platform": "PChome",
       "status": "ok",
       "count": 32,
-      "checked_at": "2026-10-18T09:41:15+08:00",
-      "message": ""
-    },
-    {
-      "query": "Adidas Samba",
-      "platform": "momo購物網",
-      "status": "ok",
-      "count": 26,
-      "checked_at": "2026-10-18T09:41:15+08:00",
+      "checked_at": "2026-10-19T09:44:23+08:00",
       "message": ""
     },
     {
       "query": "New Balance 530",
       "platform": "PChome",
       "status": "ok",
-      "count": 22,
-      "checked_at": "2026-10-18T09:41:16+08:00",
+      "count": 21,
+      "checked_at": "2026-10-19T09:44:24+08:00",
       "message": ""
     },
     {
-      "query": "New Balance 9060",
-      "platform": "PChome",
+      "query": "Adidas Samba",
+      "platform": "momo購物網",
       "status": "ok",
-      "count": 14,
-      "checked_at": "2026-10-18T09:41:16+08:00",
+      "count": 25,
+      "checked_at": "2026-10-19T09:44:24+08:00",
       "message": ""
     },
     {
@@ -87,7 +79,23 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 15,
-      "checked_at": "2026-10-18T09:41:16+08:00",
+      "checked_at": "2026-10-19T09:44:24+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 22,
+      "checked_at": "2026-10-19T09:44:25+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 21,
+      "checked_at": "2026-10-19T09:44:26+08:00",
       "message": ""
     },
     {
@@ -95,7 +103,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-18T09:41:16+08:00",
+      "checked_at": "2026-10-19T09:44:26+08:00",
       "message": "",
       "product_id": "DXAXFC-A900JT1O2"
     },
@@ -104,17 +112,9 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-18T09:41:16+08:00",
+      "checked_at": "2026-10-19T09:44:26+08:00",
       "message": "",
       "product_id": "DXAX7T-A900KB06A"
-    },
-    {
-      "query": "New Balance 9060",
-      "platform": "momo購物網",
-      "status": "ok",
-      "count": 22,
-      "checked_at": "2026-10-18T09:41:16+08:00",
-      "message": ""
     }
   ]
 }
