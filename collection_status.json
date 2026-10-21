@@ -1,53 +1,37 @@
 {
-  "finished_at": "2026-10-20T09:45:43+08:00",
-  "new_observations": 295,
+  "finished_at": "2026-10-21T09:49:03+08:00",
+  "new_observations": 286,
   "results": [
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 11,
-      "checked_at": "2026-10-20T09:45:36+08:00",
+      "count": 12,
+      "checked_at": "2026-10-21T09:48:57+08:00",
       "message": ""
     },
     {
       "query": "Jordan 1 Low",
       "platform": "PChome",
       "status": "ok",
-      "count": 32,
-      "checked_at": "2026-10-20T09:45:36+08:00",
+      "count": 33,
+      "checked_at": "2026-10-21T09:48:57+08:00",
       "message": ""
     },
     {
       "query": "Dunk Low",
       "platform": "PChome",
       "status": "ok",
-      "count": 33,
-      "checked_at": "2026-10-20T09:45:37+08:00",
-      "message": ""
-    },
-    {
-      "query": "Air Force 1",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 36,
-      "checked_at": "2026-10-20T09:45:37+08:00",
+      "count": 32,
+      "checked_at": "2026-10-21T09:48:57+08:00",
       "message": ""
     },
     {
       "query": "Dunk Low",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 25,
-      "checked_at": "2026-10-20T09:45:37+08:00",
-      "message": ""
-    },
-    {
-      "query": "Adidas Samba",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 32,
-      "checked_at": "2026-10-20T09:45:37+08:00",
+      "count": 24,
+      "checked_at": "2026-10-21T09:48:58+08:00",
       "message": ""
     },
     {
@@ -55,7 +39,15 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 17,
-      "checked_at": "2026-10-20T09:45:38+08:00",
+      "checked_at": "2026-10-21T09:48:58+08:00",
+      "message": ""
+    },
+    {
+      "query": "Air Force 1",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 38,
+      "checked_at": "2026-10-21T09:48:59+08:00",
       "message": ""
     },
     {
@@ -63,31 +55,39 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 27,
-      "checked_at": "2026-10-20T09:45:38+08:00",
+      "checked_at": "2026-10-21T09:48:59+08:00",
+      "message": ""
+    },
+    {
+      "query": "Adidas Samba",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 32,
+      "checked_at": "2026-10-21T09:49:00+08:00",
       "message": ""
     },
     {
       "query": "New Balance 530",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 15,
-      "checked_at": "2026-10-20T09:45:38+08:00",
-      "message": ""
-    },
-    {
-      "query": "New Balance 9060",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 20,
-      "checked_at": "2026-10-20T09:45:39+08:00",
+      "count": 16,
+      "checked_at": "2026-10-21T09:49:00+08:00",
       "message": ""
     },
     {
       "query": "New Balance 530",
       "platform": "PChome",
       "status": "ok",
-      "count": 23,
-      "checked_at": "2026-10-20T09:45:39+08:00",
+      "count": 18,
+      "checked_at": "2026-10-21T09:49:01+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 13,
+      "checked_at": "2026-10-21T09:49:01+08:00",
       "message": ""
     },
     {
@@ -95,7 +95,7 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 22,
-      "checked_at": "2026-10-20T09:45:39+08:00",
+      "checked_at": "2026-10-21T09:49:01+08:00",
       "message": ""
     },
     {
@@ -103,7 +103,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-20T09:45:41+08:00",
+      "checked_at": "2026-10-21T09:49:02+08:00",
       "message": "",
       "product_id": "DXAXFC-A900JT1O2"
     },
@@ -112,7 +112,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-20T09:45:42+08:00",
+      "checked_at": "2026-10-21T09:49:03+08:00",
       "message": "",
       "product_id": "DXAX7T-A900KB06A"
     }
