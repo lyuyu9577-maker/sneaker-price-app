@@ -1,37 +1,29 @@
 {
-  "finished_at": "2026-10-27T14:17:43+08:00",
-  "new_observations": 299,
+  "finished_at": "2026-10-28T14:52:24+08:00",
+  "new_observations": 303,
   "results": [
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 13,
-      "checked_at": "2026-10-27T14:17:37+08:00",
+      "count": 12,
+      "checked_at": "2026-10-28T14:52:17+08:00",
       "message": ""
     },
     {
       "query": "Dunk Low",
       "platform": "PChome",
       "status": "ok",
-      "count": 32,
-      "checked_at": "2026-10-27T14:17:37+08:00",
+      "count": 33,
+      "checked_at": "2026-10-28T14:52:18+08:00",
       "message": ""
     },
     {
       "query": "Jordan 1 Low",
       "platform": "PChome",
       "status": "ok",
-      "count": 32,
-      "checked_at": "2026-10-27T14:17:37+08:00",
-      "message": ""
-    },
-    {
-      "query": "Air Force 1",
-      "platform": "momo購物網",
-      "status": "ok",
-      "count": 16,
-      "checked_at": "2026-10-27T14:17:38+08:00",
+      "count": 33,
+      "checked_at": "2026-10-28T14:52:18+08:00",
       "message": ""
     },
     {
@@ -39,23 +31,23 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 23,
-      "checked_at": "2026-10-27T14:17:38+08:00",
+      "checked_at": "2026-10-28T14:52:18+08:00",
+      "message": ""
+    },
+    {
+      "query": "Air Force 1",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 16,
+      "checked_at": "2026-10-28T14:52:19+08:00",
       "message": ""
     },
     {
       "query": "Air Force 1",
       "platform": "PChome",
       "status": "ok",
-      "count": 36,
-      "checked_at": "2026-10-27T14:17:38+08:00",
-      "message": ""
-    },
-    {
-      "query": "New Balance 530",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 21,
-      "checked_at": "2026-10-27T14:17:39+08:00",
+      "count": 38,
+      "checked_at": "2026-10-28T14:52:19+08:00",
       "message": ""
     },
     {
@@ -63,31 +55,31 @@
       "platform": "PChome",
       "status": "ok",
       "count": 34,
-      "checked_at": "2026-10-27T14:17:39+08:00",
+      "checked_at": "2026-10-28T14:52:19+08:00",
       "message": ""
     },
     {
       "query": "Adidas Samba",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 28,
-      "checked_at": "2026-10-27T14:17:39+08:00",
+      "count": 27,
+      "checked_at": "2026-10-28T14:52:20+08:00",
       "message": ""
     },
     {
       "query": "New Balance 530",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 17,
-      "checked_at": "2026-10-27T14:17:40+08:00",
+      "count": 18,
+      "checked_at": "2026-10-28T14:52:21+08:00",
       "message": ""
     },
     {
-      "query": "New Balance 9060",
-      "platform": "momo購物網",
+      "query": "New Balance 530",
+      "platform": "PChome",
       "status": "ok",
-      "count": 25,
-      "checked_at": "2026-10-27T14:17:40+08:00",
+      "count": 21,
+      "checked_at": "2026-10-28T14:52:21+08:00",
       "message": ""
     },
     {
@@ -95,7 +87,15 @@
       "platform": "PChome",
       "status": "ok",
       "count": 20,
-      "checked_at": "2026-10-27T14:17:41+08:00",
+      "checked_at": "2026-10-28T14:52:21+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 26,
+      "checked_at": "2026-10-28T14:52:22+08:00",
       "message": ""
     },
     {
@@ -103,7 +103,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-27T14:17:41+08:00",
+      "checked_at": "2026-10-28T14:52:22+08:00",
       "message": "",
       "product_id": "DXAXFC-A900JT1O2"
     },
@@ -112,7 +112,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-27T14:17:42+08:00",
+      "checked_at": "2026-10-28T14:52:23+08:00",
       "message": "",
       "product_id": "DXAX7T-A900KB06A"
     }
