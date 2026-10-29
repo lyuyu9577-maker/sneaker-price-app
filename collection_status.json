@@ -1,21 +1,13 @@
 {
-  "finished_at": "2026-10-29T15:06:45+08:00",
-  "new_observations": 297,
+  "finished_at": "2026-10-29T19:36:29+08:00",
+  "new_observations": 298,
   "results": [
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "ok",
       "count": 14,
-      "checked_at": "2026-10-29T15:06:37+08:00",
-      "message": ""
-    },
-    {
-      "query": "Dunk Low",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 33,
-      "checked_at": "2026-10-29T15:06:37+08:00",
+      "checked_at": "2026-10-29T19:36:22+08:00",
       "message": ""
     },
     {
@@ -23,39 +15,39 @@
       "platform": "PChome",
       "status": "ok",
       "count": 34,
-      "checked_at": "2026-10-29T15:06:38+08:00",
+      "checked_at": "2026-10-29T19:36:22+08:00",
       "message": ""
     },
     {
       "query": "Dunk Low",
-      "platform": "momo購物網",
+      "platform": "PChome",
       "status": "ok",
-      "count": 23,
-      "checked_at": "2026-10-29T15:06:38+08:00",
-      "message": ""
-    },
-    {
-      "query": "Air Force 1",
-      "platform": "momo購物網",
-      "status": "ok",
-      "count": 16,
-      "checked_at": "2026-10-29T15:06:39+08:00",
+      "count": 32,
+      "checked_at": "2026-10-29T19:36:22+08:00",
       "message": ""
     },
     {
       "query": "Air Force 1",
       "platform": "PChome",
       "status": "ok",
-      "count": 38,
-      "checked_at": "2026-10-29T15:06:39+08:00",
+      "count": 37,
+      "checked_at": "2026-10-29T19:36:23+08:00",
       "message": ""
     },
     {
-      "query": "Adidas Samba",
+      "query": "Dunk Low",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 26,
-      "checked_at": "2026-10-29T15:06:40+08:00",
+      "count": 22,
+      "checked_at": "2026-10-29T19:36:23+08:00",
+      "message": ""
+    },
+    {
+      "query": "Air Force 1",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 15,
+      "checked_at": "2026-10-29T19:36:23+08:00",
       "message": ""
     },
     {
@@ -63,7 +55,23 @@
       "platform": "PChome",
       "status": "ok",
       "count": 34,
-      "checked_at": "2026-10-29T15:06:40+08:00",
+      "checked_at": "2026-10-29T19:36:23+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 530",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 16,
+      "checked_at": "2026-10-29T19:36:24+08:00",
+      "message": ""
+    },
+    {
+      "query": "Adidas Samba",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 28,
+      "checked_at": "2026-10-29T19:36:24+08:00",
       "message": ""
     },
     {
@@ -71,31 +79,41 @@
       "platform": "momo購物網",
       "status": "ok",
       "count": 17,
-      "checked_at": "2026-10-29T15:06:41+08:00",
-      "message": ""
-    },
-    {
-      "query": "New Balance 530",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 21,
-      "checked_at": "2026-10-29T15:06:41+08:00",
-      "message": ""
-    },
-    {
-      "query": "New Balance 9060",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 14,
-      "checked_at": "2026-10-29T15:06:42+08:00",
+      "checked_at": "2026-10-29T19:36:24+08:00",
       "message": ""
     },
     {
       "query": "New Balance 9060",
       "platform": "momo購物網",
       "status": "ok",
-      "count": 25,
-      "checked_at": "2026-10-29T15:06:42+08:00",
+      "count": 24,
+      "checked_at": "2026-10-29T19:36:25+08:00",
+      "message": ""
+    },
+    {
+      "query": "Jordan 1 Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:25+08:00",
+      "message": "",
+      "product_id": "DXAX7T-A900KB06A"
+    },
+    {
+      "query": "IM0557-001",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:25+08:00",
+      "message": "",
+      "product_id": "DXAX29-A900JV6BY"
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 15,
+      "checked_at": "2026-10-29T19:36:25+08:00",
       "message": ""
     },
     {
@@ -103,7 +121,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-29T15:06:43+08:00",
+      "checked_at": "2026-10-29T19:36:26+08:00",
       "message": "",
       "product_id": "DXAXFC-A900JT1O2"
     },
@@ -112,9 +130,63 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-10-29T15:06:44+08:00",
+      "checked_at": "2026-10-29T19:36:26+08:00",
       "message": "",
-      "product_id": "DXAX7T-A900KB06A"
+      "product_id": "DXAX69-A900J143L"
+    },
+    {
+      "query": "IM0557-001",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:26+08:00",
+      "message": "",
+      "product_id": "15080987"
+    },
+    {
+      "query": "Kobe 6",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:27+08:00",
+      "message": "",
+      "product_id": "15748725"
+    },
+    {
+      "query": "Adidas Samba",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:27+08:00",
+      "message": "",
+      "product_id": "DXAX69-A900IWZ9L"
+    },
+    {
+      "query": "Jordan 1 Low",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:27+08:00",
+      "message": "",
+      "product_id": "13372937"
+    },
+    {
+      "query": "FQ3548-001",
+      "platform": "momo購物網",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:27+08:00",
+      "message": "",
+      "product_id": "12756979"
+    },
+    {
+      "query": "Jordan 1 Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-10-29T19:36:28+08:00",
+      "message": "",
+      "product_id": "DXAX69-A900K03K4"
     }
   ]
 }
