@@ -347,7 +347,7 @@ def render_dashboard():
         -webkit-mask:url(data:image/png;base64,{hero}) left center / contain no-repeat;
         mask:url(data:image/png;base64,{hero}) left center / contain no-repeat"></div>''',
         unsafe_allow_html=True)
-    from watchlist import load_watchlist, request_url, MAX_TRACKED
+    from watchlist import load_watchlist
     watched = load_watchlist()
     personal_target = None
     personal_rows = []
@@ -371,7 +371,7 @@ def render_dashboard():
     elif mode == "全站長期追蹤":
         if not watched:
             st.subheader("全站長期追蹤")
-            st.info("目前全站清單沒有商品。請先自由搜尋，再加入全站追蹤。")
+            st.info("全站清單由網站管理者官方維護；要追蹤自己的商品，請使用「個人長期追蹤」。")
             return
         chosen = st.sidebar.selectbox("全站長期追蹤商品", range(len(watched)),
             format_func=lambda i: watched[i]["platform"] + " · " + watched[i]["title"])
@@ -577,20 +577,39 @@ def render_dashboard():
             "observed_at":"採集時間（UTC+8）","url":"商品連結"}), hide_index=True,
             column_config={"商品連結":st.column_config.LinkColumn("商品連結")})
     if not current.empty and mode != "個人長期追蹤":
-        st.markdown("**將搜尋商品加入全站長期追蹤**")
-        candidates = current.sort_values(["platform", "price"]).to_dict("records")
-        choices = {(r["platform"] + ":" + r["product_id"]): r for r in candidates}
-        selected_key = st.selectbox("選擇要每日收集的商品", list(choices),
-            format_func=lambda k: choices[k]["platform"] + " · " + choices[k]["title"] + " [" + choices[k]["product_id"] + "]")
-        candidate = choices[selected_key]
-        if any(w["platform"] == candidate["platform"] and w["product_id"] == candidate["product_id"] for w in watched):
-            st.success("此商品已加入全站每日追蹤，可在「全站長期追蹤」查看。")
-        elif len(watched) >= MAX_TRACKED:
-            st.info(f"全站追蹤名額已滿（{MAX_TRACKED} 件）。")
+        st.markdown("**將搜尋商品加入個人長期追蹤**")
+        from personal_watchlist import (google_login_is_configured, is_configured,
+            list_for_user, add_for_user, MAX_PERSONAL_TRACKED)
+        if not google_login_is_configured():
+            st.warning("Google 個人追蹤尚未設定，請稍後再試。")
+        elif not st.user.is_logged_in:
+            st.caption("登入 Google 帳號後，可將這款商品加入自己的清單（最多五款）。")
+            if st.button("使用 Google 帳號登入並加入個人追蹤", key="login_add_personal_from_results"):
+                st.login()
+        elif not is_configured():
+            st.warning("個人追蹤資料庫目前無法使用，請稍後再試。")
         else:
-            st.link_button("加入追蹤", request_url(candidate["platform"], candidate["product_id"], query))
-            st.caption(f"需登入 GitHub 並送出預填申請；驗證成功後加入全站共用示範清單（{len(watched)}／{MAX_TRACKED} 件）。")
-            st.caption("送出後可從側邊欄「查看每日收集執行紀錄」確認結果；成功後重新整理，再選「全站長期追蹤」。")
+            current_user_id = str(st.user.get("sub", "")).strip()
+            if not current_user_id:
+                st.error("Google 登入未提供帳號識別碼，無法加入個人清單。")
+            else:
+                try:
+                    user_items = list_for_user(current_user_id)
+                    candidates = current.sort_values(["platform", "price"]).to_dict("records")
+                    choices = {(r["platform"] + ":" + r["product_id"]): r for r in candidates}
+                    selected_key = st.selectbox("選擇要加入個人清單的商品", list(choices),
+                        format_func=lambda k: choices[k]["platform"] + " · " + choices[k]["title"] + " [" + choices[k]["product_id"] + "]")
+                    candidate = choices[selected_key]
+                    if any(w["platform"] == candidate["platform"] and w["product_id"] == candidate["product_id"] for w in user_items):
+                        st.success("此商品已在你的個人長期追蹤清單中。")
+                    elif len(user_items) >= MAX_PERSONAL_TRACKED:
+                        st.info("你的個人追蹤名額已滿（每個帳號最多五款）；移除一款後即可加入。")
+                    elif st.button("加入個人長期追蹤", key="add_personal_from_results"):
+                        add_for_user(current_user_id, candidate)
+                        st.success("已加入個人長期追蹤。")
+                        st.rerun()
+                except Exception:
+                    st.error("目前無法載入或更新個人追蹤清單，請稍後再試。")
     st.subheader(f"2 · 歷史 {days} 天價格")
     st.caption("選擇固定商品查看走勢；每一天取最後一次成功觀測，缺漏日留空，未以其他商品價格補上。")
     if selected.empty:
