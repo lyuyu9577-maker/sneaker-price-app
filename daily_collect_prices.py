@@ -6,10 +6,19 @@ from watchlist import load_watchlist, collect_fixed
 
 def main():
     results, rows = [], []
+    tracked = {(item['platform'], item['product_id']): item for item in load_watchlist()}
+    try:
+        from personal_watchlist import list_all_for_collection
+        for item in list_all_for_collection():
+            tracked.setdefault((item['platform'], item['product_id']), item)
+    except Exception as exc:
+        results.append({"query": "個人追蹤清單", "platform": "Supabase", "status": "error",
+            "count": 0, "checked_at": tracking.now_tw().isoformat(timespec="seconds"),
+            "message": f"{type(exc).__name__}: {str(exc)[:180]}"})
     with ThreadPoolExecutor(max_workers=3) as pool:
         tasks = {pool.submit(tracking.collect_platform, q, p): (q, p)
                  for q in tracking.TARGETS for p in tracking.PLATFORMS}
-        for target in load_watchlist():
+        for target in tracked.values():
             tasks[pool.submit(collect_fixed, target)] = (target['query'], target['platform'])
         for future in as_completed(tasks):
             q, p = tasks[future]
