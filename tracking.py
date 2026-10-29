@@ -303,7 +303,8 @@ def render_purchase_recommendations(current, history):
             st.markdown("**首選推薦**" if row["rank"] == 1 else f'**推薦 {row["rank"]}**')
             st.caption(row["platform"] + " · " + detect_shoe_category(row["title"]))
             st.write(row["title"])
-            st.metric("實際刊登價", f'NT$ {row["price"]:,.0f}')
+            st.metric("網站原價", f'NT$ {row["price"]:,.0f}')
+            st.markdown('<span style="color:#d62728;font-weight:700">以實際網站價格為主</span>', unsafe_allow_html=True)
             st.write(row["reason"])
             st.caption(row["history_note"])
             st.caption("採集時間：" + row["observed_at"].replace("T", " "))
@@ -474,11 +475,13 @@ def render_dashboard():
             if subset.empty:
                 st.metric(platform, "今日尚無有效價格")
             else:
-                st.metric(platform + " · 今日觀測最低刊登價", f'NT$ {subset["price"].min():,.0f}')
+                st.metric(platform + " · 今日觀測最低網站原價", f'NT$ {subset["price"].min():,.0f}')
+                st.markdown('<span style="color:#d62728;font-weight:700">以實際網站價格為主</span>', unsafe_allow_html=True)
                 st.caption(f'{len(subset)} 個商品；不同商品／配色／尺寸可能價格不同。')
     if not current.empty:
         table = current.sort_values(["platform", "price"])[["platform", "title", "price", "observed_at", "url"]]
-        st.dataframe(table.rename(columns={"platform":"平台","title":"商品","price":"刊登價",
+        st.markdown('<span style="color:#d62728;font-weight:700">以實際網站價格為主</span>', unsafe_allow_html=True)
+        st.dataframe(table.rename(columns={"platform":"平台","title":"商品","price":"網站原價",
             "observed_at":"採集時間（UTC+8）","url":"商品連結"}), hide_index=True,
             column_config={"商品連結":st.column_config.LinkColumn("商品連結")})
     if not current.empty:
