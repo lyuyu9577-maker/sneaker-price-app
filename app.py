@@ -4,6 +4,7 @@ import json
 import re
 import time
 import unicodedata
+from html import unescape
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -555,7 +556,35 @@ def fetch_pchome_products(query: str, max_pages: int = 4, detail_limit: int = 24
 
 
 @st.cache_data(ttl=600, show_spinner=False)
-def fetch_momo_products(query: str, limit: int = 60) -> pd.DataFrame:
+def parse_momo_product_page(html: str) -> dict[str, int | None]:
+    """Prefer public sale prices over promo and list prices."""
+    text = unescape(re.sub(r"<[^>]+>", " ", html))
+    text = re.sub(r"\s+", " ", text)
+    final_match = re.search(r"(?:限時)?折後價\s*([\d,]+)\s*元?", text)
+    if not final_match:
+        final_match = re.search(r"優惠價\s*([\d,]+)\s*元", text)
+    promotion_match = re.search(r"促銷價\s*([\d,]+)\s*元", text)
+    list_match = re.search(r"市售價\s*([\d,]+)\s*元", text)
+    final_price = parse_int_price((final_match or promotion_match).group(1)) if final_match or promotion_match else None
+    list_price = parse_int_price(list_match.group(1)) if list_match else None
+    return {"final_price": final_price, "list_price": list_price}
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def fetch_momo_product_detail(product_url: str) -> dict[str, int | None | str]:
+    try:
+        response = requests.get(product_url, headers=REQUEST_HEADERS, timeout=12)
+        response.raise_for_status()
+        detail = parse_momo_product_page(response.text)
+        if detail.get("final_price"):
+            return detail
+        return {**detail, "error": "商品頁未提供可辨識的折後價"}
+    except requests.RequestException as exc:
+        return {"final_price": None, "list_price": None, "error": str(exc)}
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def fetch_momo_products(query: str, limit: int = 60, detail_limit: int = 24) -> pd.DataFrame:
     response = requests.get(
         MOMO_SEARCH_URL.format(keyword=quote_plus(query)),
         params={"viewport": "desktop"},
@@ -606,7 +635,7 @@ def fetch_momo_products(query: str, limit: int = 60) -> pd.DataFrame:
                 "優惠": "0%",
                 "商品連結": product_url,
                 "資料來源": "momo 即時搜尋資料",
-                "價格說明": "momo 搜尋頁售價",
+                "價格說明": "momo 搜尋頁參考價",
             }
         )
 
@@ -615,6 +644,20 @@ def fetch_momo_products(query: str, limit: int = 60) -> pd.DataFrame:
     products_df = pd.DataFrame(rows).drop_duplicates(subset=["商品連結"])
     if products_df.empty:
         return products_df
+
+    products_df = products_df.sort_values("價格", ascending=True).reset_index(drop=True)
+    for index in products_df.head(detail_limit).index:
+        detail = fetch_momo_product_detail(str(products_df.at[index, "商品連結"]))
+        if detail.get("final_price"):
+            final_price = int(detail["final_price"])
+            list_price = int(detail.get("list_price") or products_df.at[index, "網路價"] or final_price)
+            discount = round((1 - final_price / list_price) * 100) if list_price > final_price else 0
+            products_df.at[index, "價格"] = final_price
+            products_df.at[index, "網路價"] = list_price
+            products_df.at[index, "優惠"] = f"{discount}%"
+            products_df.at[index, "價格說明"] = "momo 商品頁折後價"
+        else:
+            products_df.at[index, "價格說明"] = "momo 搜尋頁參考價（商品頁折扣未確認）"
 
     products_df["推薦分數"] = calculate_scores(products_df)
     return products_df.sort_values(["價格", "推薦分數"], ascending=[True, False]).reset_index(drop=True)
