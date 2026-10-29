@@ -991,7 +991,15 @@ def apply_styles() -> None:
 
 def main() -> None:
     from tracking import render_dashboard
-    render_dashboard()
+
+    page = st.navigation(
+        [
+            st.Page(render_dashboard, title="使用介面", icon="👟", default=True),
+            st.Page("pages/Privacy_Policy.py", title="隱私條款", icon="🔒"),
+        ],
+        position="sidebar",
+    )
+    page.run()
 
 
 if __name__ == "__main__":
