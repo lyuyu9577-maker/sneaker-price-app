@@ -536,6 +536,32 @@ def render_dashboard():
         if personal_target:
             selected = frame[frame["platform"].eq(personal_target["platform"]) &
                              frame["product_id"].eq(personal_target["product_id"])].copy()
+            today = now_tw().date().isoformat()
+            live_rows = []
+            search_snapshot = st.session_state.get("shoe_search_result", {})
+            if isinstance(search_snapshot, dict):
+                live_rows = [row for row in search_snapshot.get("rows", [])
+                    if row.get("platform") == personal_target["platform"]
+                    and str(row.get("product_id")) == str(personal_target["product_id"])
+                    and row.get("date") == today]
+            if not selected["date"].eq(today).any() and not live_rows:
+                cache_key = "personal_live_price:" + ":".join((
+                    personal_user_id, personal_target["platform"],
+                    str(personal_target["product_id"]), today))
+                if cache_key not in st.session_state:
+                    try:
+                        from watchlist import collect_fixed
+                        with st.spinner("正在更新這款個人追蹤商品的即時價格…"):
+                            live_rows, _ = collect_fixed(personal_target)
+                    except Exception:
+                        live_rows = []
+                    st.session_state[cache_key] = live_rows
+                else:
+                    live_rows = st.session_state[cache_key]
+            if live_rows:
+                selected = pd.concat([selected, pd.DataFrame(live_rows, columns=COLUMNS)],
+                    ignore_index=True).drop_duplicates(
+                        ["observed_at", "platform", "product_id"], keep="last")
             st.caption(f"個人長期追蹤：{personal_target['title']} · {personal_target['product_id']}")
         else:
             selected = frame.iloc[0:0].copy()
