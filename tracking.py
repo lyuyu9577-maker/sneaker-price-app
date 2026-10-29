@@ -349,7 +349,10 @@ def render_dashboard():
         unsafe_allow_html=True)
     from watchlist import load_watchlist, request_url, MAX_TRACKED
     watched = load_watchlist()
-    mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋", "長期追蹤"],
+    personal_target = None
+    personal_rows = []
+    personal_user_id = None
+    mode = st.sidebar.radio("選擇查詢方式", ["下拉選單", "自由搜尋", "全站長期追蹤", "個人長期追蹤"],
                             horizontal=True, key="shoe_query_mode")
     query = None
     shoe_category = None
@@ -365,18 +368,100 @@ def render_dashboard():
         submitted = st.sidebar.button("搜尋", key="search_tracked_shoe")
         search_text = query
         st.sidebar.caption("選好鞋款後按「搜尋」，取得最新平台價格。")
-    elif mode == "長期追蹤":
+    elif mode == "全站長期追蹤":
         if not watched:
-            st.subheader("推薦購買商品")
-            st.info("尚無長期追蹤商品。請先自由搜尋，在商品下方按「加入追蹤」。")
+            st.subheader("全站長期追蹤")
+            st.info("目前全站清單沒有商品。請先自由搜尋，再加入全站追蹤。")
             return
-        chosen = st.sidebar.selectbox("長期追蹤商品", range(len(watched)),
+        chosen = st.sidebar.selectbox("全站長期追蹤商品", range(len(watched)),
             format_func=lambda i: watched[i]["platform"] + " · " + watched[i]["title"])
         target = watched[chosen]
         query = target["query"]
-        st.sidebar.caption(f"全站追蹤 {len(watched)}／{MAX_TRACKED} 件；每日自動收集同一商品。")
+        st.sidebar.caption(f"全站共用示範清單：{len(watched)} 款；每日自動收集。")
+    elif mode == "個人長期追蹤":
+        from personal_watchlist import (google_login_is_configured, is_configured,
+            list_for_user, add_for_user, remove_for_user, MAX_PERSONAL_TRACKED)
+        st.subheader("個人長期追蹤")
+        if not google_login_is_configured():
+            st.warning("Google 登入尚未設定。管理者需先完成 Google OAuth 與 Streamlit Secrets 設定。")
+            return
+        if not st.user.is_logged_in:
+            st.info("使用個人 Google 帳號登入後，可建立自己的追蹤清單，每個帳號最多五款。")
+            if st.button("使用 Google 帳號登入", key="personal_google_login"):
+                st.login()
+            return
+        personal_user_id = str(st.user.get("sub", "")).strip()
+        if not personal_user_id:
+            st.error("Google 登入未提供穩定帳號識別碼，無法安全載入個人清單。")
+            return
+        if not is_configured():
+            st.warning("個人雲端清單資料庫尚未設定。管理者需先建立 Supabase 資料表並設定 Streamlit Secrets。")
+            return
+        try:
+            personal_rows = list_for_user(personal_user_id)
+        except Exception as exc:
+            st.error(f"無法載入個人追蹤清單：{exc}")
+            return
+        email = str(st.user.get("email", "Google 使用者"))
+        st.sidebar.caption("已登入：" + email)
+        if st.sidebar.button("Google 帳號登出", key="personal_google_logout"):
+            st.logout()
+        st.sidebar.caption(f"個人追蹤：{len(personal_rows)}／{MAX_PERSONAL_TRACKED} 款")
+        if personal_rows:
+            personal_choice = st.sidebar.selectbox("個人追蹤商品", range(len(personal_rows)),
+                format_func=lambda i: personal_rows[i]["platform"] + " · " + personal_rows[i]["title"],
+                key="personal_watch_choice")
+            personal_target = personal_rows[personal_choice]
+            if st.sidebar.button("移除這款追蹤", key="remove_personal_watch"):
+                remove_for_user(personal_user_id, personal_target["platform"], personal_target["product_id"])
+                st.rerun()
+            query = personal_target["query"]
+        else:
+            personal_target = None
+            query = None
+            st.info("你還沒有追蹤商品。搜尋後可加入個人清單。")
+        with st.sidebar.form("personal_product_search"):
+            personal_search_query = st.text_input("搜尋要加入的球鞋", placeholder="例如：Kobe 6、Jordan 4")
+            personal_search_category = st.radio("商品類別", ["男鞋", "女鞋", "全部"],
+                horizontal=True, key="personal_search_category")
+            personal_search_submitted = st.form_submit_button("搜尋商品")
+        if personal_search_submitted:
+            keyword = " ".join(personal_search_query.split())
+            if not keyword:
+                st.sidebar.warning("請先輸入鞋款名稱。")
+            else:
+                personal_candidates = []
+                with st.spinner(f"正在搜尋 {keyword} 的商品…"):
+                    for platform in PLATFORMS:
+                        try:
+                            found, _ = collect_platform(keyword, platform)
+                            if personal_search_category != "全部":
+                                from app import category_matches_product
+                                found = [r for r in found if category_matches_product(personal_search_category, r["title"])]
+                            personal_candidates.extend(found)
+                        except Exception:
+                            continue
+                st.session_state["personal_candidates"] = {
+                    "user_id": personal_user_id, "query": keyword, "rows": personal_candidates}
+        saved_candidates = st.session_state.get("personal_candidates", {})
+        if saved_candidates.get("user_id") == personal_user_id and saved_candidates.get("rows"):
+            candidates = saved_candidates["rows"]
+            candidate_index = st.sidebar.selectbox("選擇要加入的商品", range(len(candidates)),
+                format_func=lambda i: candidates[i]["platform"] + " · " + candidates[i]["title"],
+                key="personal_candidate_choice")
+            candidate = candidates[candidate_index]
+            if st.sidebar.button("加入個人長期追蹤", key="add_personal_watch"):
+                try:
+                    add_for_user(personal_user_id, candidate)
+                    st.session_state.pop("personal_candidates", None)
+                    st.rerun()
+                except Exception as exc:
+                    st.sidebar.error(str(exc))
+        submitted = False
+        shoe_category = None
+        shoe_size = ""
     else:
-        with st.sidebar.form("shoe_search"):
+        with st.sidebar.form("shoe_search"): 
             search_text = st.text_input("搜尋其他鞋款", placeholder="例如：Kobe 6、Jordan 4",
                                         key="shoe_search_text")
             shoe_category = st.radio("鞋款類別", ["男鞋", "女鞋"],
@@ -443,10 +528,17 @@ def render_dashboard():
                 st.info("尺寸需求：" + search["shoe_size"] + "。目前平台資料未驗證此尺寸的庫存與價格；以下仍為商品刊登價，請至商品頁確認。長期追蹤以商品編號為單位。")
         else:
             st.caption("本次即時查詢結果保留於目前工作階段；歷史紀錄仍來自已保存的觀測。")
-    elif mode == "長期追蹤":
+    elif mode == "全站長期追蹤":
         selected = frame[frame["platform"].eq(target["platform"]) &
                          frame["product_id"].eq(target["product_id"])].copy()
-        st.caption(f"長期追蹤：{target['title']} · {target['product_id']}")
+        st.caption(f"全站長期追蹤：{target['title']} · {target['product_id']}")
+    elif mode == "個人長期追蹤":
+        if personal_target:
+            selected = frame[frame["platform"].eq(personal_target["platform"]) &
+                             frame["product_id"].eq(personal_target["product_id"])].copy()
+            st.caption(f"個人長期追蹤：{personal_target['title']} · {personal_target['product_id']}")
+        else:
+            selected = frame.iloc[0:0].copy()
     else:
         selected = frame[frame["query"].eq(query)].copy()
         from app import category_matches_product
@@ -484,21 +576,21 @@ def render_dashboard():
         st.dataframe(table.rename(columns={"platform":"平台","title":"商品","price":"網站原價",
             "observed_at":"採集時間（UTC+8）","url":"商品連結"}), hide_index=True,
             column_config={"商品連結":st.column_config.LinkColumn("商品連結")})
-    if not current.empty:
-        st.markdown("**將搜尋商品加入長期追蹤**")
+    if not current.empty and mode != "個人長期追蹤":
+        st.markdown("**將搜尋商品加入全站長期追蹤**")
         candidates = current.sort_values(["platform", "price"]).to_dict("records")
         choices = {(r["platform"] + ":" + r["product_id"]): r for r in candidates}
         selected_key = st.selectbox("選擇要每日收集的商品", list(choices),
             format_func=lambda k: choices[k]["platform"] + " · " + choices[k]["title"] + " [" + choices[k]["product_id"] + "]")
         candidate = choices[selected_key]
         if any(w["platform"] == candidate["platform"] and w["product_id"] == candidate["product_id"] for w in watched):
-            st.success("此商品已加入每日追蹤，可在側邊欄「長期追蹤」查看。")
+            st.success("此商品已加入全站每日追蹤，可在「全站長期追蹤」查看。")
         elif len(watched) >= MAX_TRACKED:
             st.info(f"全站追蹤名額已滿（{MAX_TRACKED} 件）。")
         else:
             st.link_button("加入追蹤", request_url(candidate["platform"], candidate["product_id"], query))
-            st.caption(f"需登入 GitHub 並送出預填申請；驗證成功後加入全站共用清單（{len(watched)}／{MAX_TRACKED} 件）。申請與清單公開，請勿填入個人資料。")
-            st.caption("送出後可從側邊欄「查看每日收集執行紀錄」確認結果；成功後重新整理，再選「長期追蹤」。")
+            st.caption(f"需登入 GitHub 並送出預填申請；驗證成功後加入全站共用示範清單（{len(watched)}／{MAX_TRACKED} 件）。")
+            st.caption("送出後可從側邊欄「查看每日收集執行紀錄」確認結果；成功後重新整理，再選「全站長期追蹤」。")
     st.subheader(f"2 · 歷史 {days} 天價格")
     st.caption("選擇固定商品查看走勢；每一天取最後一次成功觀測，缺漏日留空，未以其他商品價格補上。")
     if selected.empty:
@@ -515,8 +607,10 @@ def render_dashboard():
             pid = st.selectbox("商品", list(names), format_func=lambda p, names=names: names[p] + " [" + p + "]", key=platform)
             product = items[items["product_id"].eq(pid)]
             st.caption(f"固定商品編號：{pid}")
-            if any(w["platform"] == platform and w["product_id"] == pid for w in watched):
-                st.success("已加入每日長期追蹤")
+            if mode == "個人長期追蹤" and any(w["platform"] == platform and w["product_id"] == pid for w in personal_rows):
+                st.success("已加入個人長期追蹤")
+            elif any(w["platform"] == platform and w["product_id"] == pid for w in watched):
+                st.success("已加入全站長期追蹤")
             series = daily_series(product)
             period = series.reindex(pd.date_range(now_tw().date()-timedelta(days=days-1), periods=days))
             history = pd.DataFrame({"日期":period.index, "實際刊登價":period.values})
