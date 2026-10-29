@@ -1,7 +1,5 @@
 name: Register tracked product
 on:
-  issues:
-    types: [opened, reopened]
   workflow_dispatch:
     inputs:
       platform:
@@ -21,7 +19,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   register:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.issue.title, '[追蹤申請] ')
+    if: github.actor == 'lyuyu9577-maker'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
