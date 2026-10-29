@@ -399,11 +399,17 @@ def parse_pchome_product_page(html: str) -> dict[str, int | float | str | None]:
     rating = None
     review_count = None
 
-    discount_match = re.search(r'商品價格\s*折扣價\s*([\d,]+)元', html)
+    # PChome's product page places the sale price and web/list price in separate DOM nodes.
+    # Strip markup first so tags and line breaks between the label and amount do not break parsing.
+    visible_html = re.sub(r"<(script|style)\b[^>]*>.*?</\1>", " ", html, flags=re.IGNORECASE | re.DOTALL)
+    text = unescape(re.sub(r"<[^>]+>", " ", visible_html))
+    text = re.sub(r"\s+", " ", text)
+
+    discount_match = re.search(r"(?:折扣價|折後價|優惠價)\s*(?:NT[$＄]|[$＄])?\s*([\d,]+)", text)
     if discount_match:
         final_price = parse_int_price(discount_match.group(1))
 
-    list_match = re.search(r'網路價\s*([\d,]+)元', html)
+    list_match = re.search(r"網路價\s*(?:NT[$＄]|[$＄])?\s*([\d,]+)", text)
     if list_match:
         list_price = parse_int_price(list_match.group(1))
 
@@ -427,10 +433,7 @@ def parse_pchome_product_page(html: str) -> dict[str, int | float | str | None]:
             pass
 
     if not final_price:
-        visible_price_match = re.search(
-            r'o-prodPrice__price[^>]*>\$?([\d,]+)<',
-            html,
-        )
+        visible_price_match = re.search(r'o-prodPrice__price[^>]*>\$?([\d,]+)<', html)
         if visible_price_match:
             final_price = parse_int_price(visible_price_match.group(1))
 
@@ -474,7 +477,27 @@ def fetch_pchome_product_detail(product_id: str) -> dict[str, int | float | str 
         if not prices:
             return {"error": "PChome 商品目前無可售規格"}
 
-        return min(prices, key=lambda item: item["final_price"])
+        best = min(prices, key=lambda item: item["final_price"])
+        best["price_source"] = "PChome 規格 API 價格"
+
+        # The button API can expose the network price while the page shows a lower public sale price.
+        try:
+            page_response = requests.get(
+                f"https://24h.pchome.com.tw/prod/{product_id}",
+                headers=REQUEST_HEADERS,
+                timeout=12,
+            )
+            page_response.raise_for_status()
+            page_detail = parse_pchome_product_page(page_response.text)
+            page_price = parse_int_price(page_detail.get("final_price"))
+            if page_price:
+                best["final_price"] = page_price
+                best["list_price"] = parse_int_price(page_detail.get("list_price")) or best["list_price"]
+                best["price_source"] = "PChome 商品頁折扣價"
+        except requests.RequestException:
+            pass
+
+        return best
     except (requests.RequestException, ValueError) as exc:
         return {"error": str(exc)}
 
@@ -545,7 +568,7 @@ def fetch_pchome_products(query: str, max_pages: int = 4, detail_limit: int = 24
         if detail.get("error"):
             products_df.at[index, "價格說明"] = "搜尋頁價格（價格 API 失敗）"
         else:
-            products_df.at[index, "價格說明"] = (
+            products_df.at[index, "價格說明"] = detail.get("price_source") or (
                 "PChome API 最低折扣價" if final_price != search_price else "PChome API 價格"
             )
         time.sleep(0.05)
