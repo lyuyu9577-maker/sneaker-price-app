@@ -1,5 +1,5 @@
 {
-  "finished_at": "2026-11-09T15:59:20+08:00",
+  "finished_at": "2026-11-10T16:25:55+08:00",
   "new_observations": 184,
   "results": [
     {
@@ -7,7 +7,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-09T15:59:11+08:00",
+      "checked_at": "2026-11-10T16:25:44+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Jordan+1+Low?viewport=desktop"
     },
     {
@@ -15,7 +15,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-09T15:59:11+08:00",
+      "checked_at": "2026-11-10T16:25:44+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Dunk+Low?viewport=desktop"
     },
     {
@@ -23,87 +23,96 @@
       "platform": "PChome",
       "status": "ok",
       "count": 31,
-      "checked_at": "2026-11-09T15:59:12+08:00",
+      "checked_at": "2026-11-10T16:25:47+08:00",
       "message": ""
-    },
-    {
-      "query": "Air Force 1",
-      "platform": "momo購物網",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-11-09T15:59:12+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Air+Force+1?viewport=desktop"
-    },
-    {
-      "query": "Air Force 1",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 37,
-      "checked_at": "2026-11-09T15:59:12+08:00",
-      "message": ""
-    },
-    {
-      "query": "Adidas Samba",
-      "platform": "momo購物網",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-11-09T15:59:12+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Adidas+Samba?viewport=desktop"
     },
     {
       "query": "Jordan 1 Low",
       "platform": "PChome",
       "status": "ok",
       "count": 32,
-      "checked_at": "2026-11-09T15:59:13+08:00",
+      "checked_at": "2026-11-10T16:25:47+08:00",
       "message": ""
+    },
+    {
+      "query": "Air Force 1",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 37,
+      "checked_at": "2026-11-10T16:25:47+08:00",
+      "message": ""
+    },
+    {
+      "query": "Air Force 1",
+      "platform": "momo購物網",
+      "status": "error",
+      "count": 0,
+      "checked_at": "2026-11-10T16:25:47+08:00",
+      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Air+Force+1?viewport=desktop"
+    },
+    {
+      "query": "Adidas Samba",
+      "platform": "momo購物網",
+      "status": "error",
+      "count": 0,
+      "checked_at": "2026-11-10T16:25:47+08:00",
+      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Adidas+Samba?viewport=desktop"
     },
     {
       "query": "New Balance 530",
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-09T15:59:13+08:00",
+      "checked_at": "2026-11-10T16:25:47+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/New+Balance+530?viewport=desktop"
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 22,
+      "checked_at": "2026-11-10T16:25:48+08:00",
+      "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "momo購物網",
+      "status": "error",
+      "count": 0,
+      "checked_at": "2026-11-10T16:25:48+08:00",
+      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/New+Balance+9060?viewport=desktop"
     },
     {
       "query": "Adidas Samba",
       "platform": "PChome",
       "status": "ok",
       "count": 34,
-      "checked_at": "2026-11-09T15:59:14+08:00",
+      "checked_at": "2026-11-10T16:25:48+08:00",
       "message": ""
-    },
-    {
-      "query": "New Balance 9060",
-      "platform": "momo購物網",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-11-09T15:59:14+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/New+Balance+9060?viewport=desktop"
     },
     {
       "query": "New Balance 530",
       "platform": "PChome",
       "status": "ok",
-      "count": 22,
-      "checked_at": "2026-11-09T15:59:14+08:00",
+      "count": 20,
+      "checked_at": "2026-11-10T16:25:49+08:00",
       "message": ""
     },
     {
-      "query": "New Balance 9060",
+      "query": "IM0557-001",
       "platform": "PChome",
       "status": "ok",
-      "count": 20,
-      "checked_at": "2026-11-09T15:59:15+08:00",
-      "message": ""
+      "count": 1,
+      "checked_at": "2026-11-10T16:25:50+08:00",
+      "message": "",
+      "product_id": "DXAX29-A900JV6BY"
     },
     {
       "query": "Kobe 6",
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-09T15:59:15+08:00",
+      "checked_at": "2026-11-10T16:25:50+08:00",
       "message": "",
       "product_id": "DXAXFC-A900JT1O2"
     },
@@ -112,24 +121,15 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-09T15:59:15+08:00",
+      "checked_at": "2026-11-10T16:25:50+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/IM0557-001?viewport=desktop"
-    },
-    {
-      "query": "IM0557-001",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 1,
-      "checked_at": "2026-11-09T15:59:16+08:00",
-      "message": "",
-      "product_id": "DXAX29-A900JV6BY"
     },
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-09T15:59:16+08:00",
+      "checked_at": "2026-11-10T16:25:50+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Jordan+1+Low?viewport=desktop"
     },
     {
@@ -137,7 +137,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-09T15:59:16+08:00",
+      "checked_at": "2026-11-10T16:25:50+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Kobe+6?viewport=desktop"
     },
     {
@@ -145,7 +145,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-09T15:59:17+08:00",
+      "checked_at": "2026-11-10T16:25:50+08:00",
       "message": "",
       "product_id": "DXAX7T-A900KB06A"
     },
@@ -154,7 +154,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-09T15:59:17+08:00",
+      "checked_at": "2026-11-10T16:25:51+08:00",
       "message": "",
       "product_id": "DXAX69-A900J143L"
     },
@@ -163,7 +163,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-09T15:59:17+08:00",
+      "checked_at": "2026-11-10T16:25:51+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/FQ3548-001?viewport=desktop"
     },
     {
@@ -171,7 +171,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-09T15:59:18+08:00",
+      "checked_at": "2026-11-10T16:25:52+08:00",
       "message": "",
       "product_id": "DXAX69-A900IWZ9L"
     },
@@ -180,27 +180,27 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-09T15:59:19+08:00",
+      "checked_at": "2026-11-10T16:25:53+08:00",
       "message": "",
       "product_id": "DXAX2J-A900GI4NJ"
-    },
-    {
-      "query": "Air force1",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 1,
-      "checked_at": "2026-11-09T15:59:19+08:00",
-      "message": "",
-      "product_id": "DXAX69-A900JTSW8"
     },
     {
       "query": "Jordan 1 Low",
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-09T15:59:19+08:00",
+      "checked_at": "2026-11-10T16:25:53+08:00",
       "message": "",
       "product_id": "DXAX69-A900K03K4"
+    },
+    {
+      "query": "Air force1",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-11-10T16:25:54+08:00",
+      "message": "",
+      "product_id": "DXAX69-A900JTSW8"
     }
   ]
 }
