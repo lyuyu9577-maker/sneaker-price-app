@@ -1,13 +1,13 @@
 {
-  "finished_at": "2026-11-12T16:21:07+08:00",
-  "new_observations": 184,
+  "finished_at": "2026-11-13T15:59:12+08:00",
+  "new_observations": 175,
   "results": [
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:20:57+08:00",
+      "checked_at": "2026-11-13T15:59:04+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Jordan+1+Low?viewport=desktop"
     },
     {
@@ -15,15 +15,15 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:20:57+08:00",
+      "checked_at": "2026-11-13T15:59:04+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Dunk+Low?viewport=desktop"
     },
     {
-      "query": "Dunk Low",
+      "query": "Jordan 1 Low",
       "platform": "PChome",
       "status": "ok",
-      "count": 31,
-      "checked_at": "2026-11-12T16:20:59+08:00",
+      "count": 33,
+      "checked_at": "2026-11-13T15:59:05+08:00",
       "message": ""
     },
     {
@@ -31,23 +31,23 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:20:59+08:00",
+      "checked_at": "2026-11-13T15:59:05+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Air+Force+1?viewport=desktop"
+    },
+    {
+      "query": "Dunk Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 31,
+      "checked_at": "2026-11-13T15:59:05+08:00",
+      "message": ""
     },
     {
       "query": "Air Force 1",
       "platform": "PChome",
       "status": "ok",
-      "count": 37,
-      "checked_at": "2026-11-12T16:20:59+08:00",
-      "message": ""
-    },
-    {
-      "query": "Jordan 1 Low",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 32,
-      "checked_at": "2026-11-12T16:20:59+08:00",
+      "count": 36,
+      "checked_at": "2026-11-13T15:59:05+08:00",
       "message": ""
     },
     {
@@ -55,7 +55,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:20:59+08:00",
+      "checked_at": "2026-11-13T15:59:05+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Adidas+Samba?viewport=desktop"
     },
     {
@@ -63,7 +63,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:20:59+08:00",
+      "checked_at": "2026-11-13T15:59:06+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/New+Balance+530?viewport=desktop"
     },
     {
@@ -71,7 +71,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 34,
-      "checked_at": "2026-11-12T16:21:00+08:00",
+      "checked_at": "2026-11-13T15:59:07+08:00",
       "message": ""
     },
     {
@@ -79,57 +79,57 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:21:00+08:00",
+      "checked_at": "2026-11-13T15:59:07+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/New+Balance+9060?viewport=desktop"
-    },
-    {
-      "query": "New Balance 9060",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 22,
-      "checked_at": "2026-11-12T16:21:01+08:00",
-      "message": ""
     },
     {
       "query": "New Balance 530",
       "platform": "PChome",
       "status": "ok",
-      "count": 20,
-      "checked_at": "2026-11-12T16:21:01+08:00",
+      "count": 16,
+      "checked_at": "2026-11-13T15:59:07+08:00",
       "message": ""
+    },
+    {
+      "query": "New Balance 9060",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 17,
+      "checked_at": "2026-11-13T15:59:07+08:00",
+      "message": ""
+    },
+    {
+      "query": "IM0557-001",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-11-13T15:59:08+08:00",
+      "message": "",
+      "product_id": "DXAX29-A900JV6BY"
+    },
+    {
+      "query": "IM0557-001",
+      "platform": "momo購物網",
+      "status": "error",
+      "count": 0,
+      "checked_at": "2026-11-13T15:59:08+08:00",
+      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/IM0557-001?viewport=desktop"
     },
     {
       "query": "Kobe 6",
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-12T16:21:02+08:00",
+      "checked_at": "2026-11-13T15:59:08+08:00",
       "message": "",
       "product_id": "DXAXFC-A900JT1O2"
-    },
-    {
-      "query": "IM0557-001",
-      "platform": "momo購物網",
-      "status": "error",
-      "count": 0,
-      "checked_at": "2026-11-12T16:21:02+08:00",
-      "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/IM0557-001?viewport=desktop"
-    },
-    {
-      "query": "IM0557-001",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 1,
-      "checked_at": "2026-11-12T16:21:02+08:00",
-      "message": "",
-      "product_id": "DXAX29-A900JV6BY"
     },
     {
       "query": "Jordan 1 Low",
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:21:02+08:00",
+      "checked_at": "2026-11-13T15:59:08+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Jordan+1+Low?viewport=desktop"
     },
     {
@@ -137,7 +137,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:21:02+08:00",
+      "checked_at": "2026-11-13T15:59:08+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/Kobe+6?viewport=desktop"
     },
     {
@@ -145,7 +145,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-12T16:21:03+08:00",
+      "checked_at": "2026-11-13T15:59:09+08:00",
       "message": "",
       "product_id": "DXAX7T-A900KB06A"
     },
@@ -154,7 +154,7 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-12T16:21:03+08:00",
+      "checked_at": "2026-11-13T15:59:09+08:00",
       "message": "",
       "product_id": "DXAX69-A900J143L"
     },
@@ -163,7 +163,7 @@
       "platform": "momo購物網",
       "status": "error",
       "count": 0,
-      "checked_at": "2026-11-12T16:21:03+08:00",
+      "checked_at": "2026-11-13T15:59:09+08:00",
       "message": "HTTPError: 403 Client Error: Forbidden for url: https://www.momoshop.com.tw/search/FQ3548-001?viewport=desktop"
     },
     {
@@ -171,34 +171,34 @@
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-12T16:21:04+08:00",
+      "checked_at": "2026-11-13T15:59:10+08:00",
       "message": "",
       "product_id": "DXAX69-A900IWZ9L"
-    },
-    {
-      "query": "Jordan 1 Low",
-      "platform": "PChome",
-      "status": "ok",
-      "count": 1,
-      "checked_at": "2026-11-12T16:21:05+08:00",
-      "message": "",
-      "product_id": "DXAX69-A900K03K4"
     },
     {
       "query": "DC0774-105",
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-12T16:21:05+08:00",
+      "checked_at": "2026-11-13T15:59:10+08:00",
       "message": "",
       "product_id": "DXAX2J-A900GI4NJ"
+    },
+    {
+      "query": "Jordan 1 Low",
+      "platform": "PChome",
+      "status": "ok",
+      "count": 1,
+      "checked_at": "2026-11-13T15:59:11+08:00",
+      "message": "",
+      "product_id": "DXAX69-A900K03K4"
     },
     {
       "query": "Air force1",
       "platform": "PChome",
       "status": "ok",
       "count": 1,
-      "checked_at": "2026-11-12T16:21:06+08:00",
+      "checked_at": "2026-11-13T15:59:11+08:00",
       "message": "",
       "product_id": "DXAX69-A900JTSW8"
     }
